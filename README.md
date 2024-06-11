@@ -12,8 +12,8 @@ Ce projet permet d'exporter des tableaux de bord Grafana en PDF en utilisant Pup
 Clonez ce dépôt et accédez au répertoire du projet :
 
 ```bash
-git clone https://github.com/votre-utilisateur/grafana-pdf-exporter.git
-cd grafana-pdf-exporter
+git clone https://github.com/arthur-mdn/grafana-export-to-pdf/
+cd grafana-export-to-pdf
 ```
 
 ## Configuration
