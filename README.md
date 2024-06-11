@@ -48,6 +48,8 @@ curl -X POST http://localhost:3000/generate-pdf -H "Content-Type: application/js
 }'
 ```
 #### Via un bouton HTML injecté dans Grafana
+![Injection du bouton dans Grafana](https://github.com/arthur-mdn/grafana-export-to-pdf/main/illustrations/inject-button-inside-grafana.png)
+
 Pour injecter un bouton directement dans Grafana, ajoutez le contenu du fichier `grafana-button.html` dans le champ "Text" d'un panneau de texte Grafana.
 Veillez à modifier l'URL du serveur si nécessaire.
 ```javascript
