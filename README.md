@@ -17,8 +17,6 @@ cd grafana-export-to-pdf
 ```
 
 ## Configuration
-### Docker
-Assurez-vous que Docker et Docker Compose sont installés sur votre machine.
 
 ### Variables d'environnement
 Dupliquez le fichier `.env.example` et renommez-le en `.env`. Modifiez les valeurs en fonction de votre configuration.
@@ -29,7 +27,7 @@ GRAFANA_PASSWORD=pdf_export
 ```
 
 
-### Utilisation
+## Utilisation
 Pour lancer le projet, exécutez la commande suivante :
 
 ```bash
