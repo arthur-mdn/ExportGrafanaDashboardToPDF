@@ -46,6 +46,8 @@ curl -X POST http://localhost:3000/generate-pdf -H "Content-Type: application/js
 }'
 ```
 #### Via un bouton HTML injecté dans Grafana
+> Vous devez vous assurer que le paramètre ``disable_sanitize_html`` est à ``true`` dans le fichier de configuration Grafana pour pouvoir injecter du code HTML et Javascript.
+> 
 ![Injection du bouton dans Grafana](https://github.com/arthur-mdn/grafana-export-to-pdf/blob/main/illustrations/inject-button-inside-grafana.png)
 
 Pour injecter un bouton directement dans Grafana, ajoutez le contenu du fichier `grafana-button.html` dans le champ "Text" d'un panneau de texte Grafana.
@@ -54,5 +56,4 @@ Veillez à modifier l'URL du serveur si nécessaire.
 const pdfGeneration = true;
 const pdfGenerationServerUrl = 'http://localhost:3000/';
 ```
-> Vous devez vous assurer que le paramètre ``disable_sanitize_html`` est à ``true`` dans le fichier de configuration Grafana.
 
