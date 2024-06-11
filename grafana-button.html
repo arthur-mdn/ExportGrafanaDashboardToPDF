@@ -2,50 +2,6 @@
     const pdfGeneration = true;
     const pdfGenerationServerUrl = 'http://localhost:3000/';
 </script>
-<div style="display:flex; align-items:center;justify-content:space-between;">
-    <p id="display_actual_dashboard_title" style="margin: 0;line-height: 1rem;">${__dashboard}</p>
-    <p id="display_actual_date" style="margin: 0;line-height: 1rem;"></p>
-</div>
-
-<script>
-    function padZero(num) {
-        return num < 10 ? '0' + num : num;
-    }
-
-    function getFrenchDay(dayIndex) {
-        const days = ['Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'];
-        return days[dayIndex];
-    }
-
-    function getFrenchMonth(monthIndex) {
-        const months = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
-        return months[monthIndex];
-    }
-
-    var today = new Date();
-    var day = getFrenchDay(today.getDay());
-    var date = today.getDate();
-    var month = getFrenchMonth(today.getMonth());
-    var year = today.getFullYear();
-
-    var formattedDate = `${day} ${date} ${month} ${year}`;
-    document.getElementById("display_actual_date").innerHTML = formattedDate;
-</script>
-<style type="text/css">
-    div[data-testid*="Courriers en retard par mois"], div[data-testid*="Traités les moins rapidement"],
-    div[data-testid*="Le plus de courriers en retard"] {
-        background-color: #361111 /* red */
-    }
-
-    div[data-testid*="Qualiville"], .css-kvzgb9-panel-content:has(.force-qualiville) {
-        background-color: #292b3f /* blue */
-    }
-
-    div[data-testid*="Temps de traitement des courriers"], div[data-testid*="Traités les plus rapidement"] {
-        background-color: #183b11
-    }
-</style>
-
 
 <style>
     .export-pdf-container button{
