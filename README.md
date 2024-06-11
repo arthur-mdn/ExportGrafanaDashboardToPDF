@@ -21,13 +21,13 @@ cd grafana-pdf-exporter
 Assurez-vous que Docker et Docker Compose sont installés sur votre machine.
 
 ### Variables d'environnement
-Les identifiants Grafana sont codés en dur dans le fichier server.js :
+Dupliquez le fichier `.env.example` et renommez-le en `.env`. Modifiez les valeurs en fonction de votre configuration.
 
-```javascript
-const user = 'pdf_export';
-const password = 'pdf_export';
+```dotenv
+GRAFANA_USER=pdf_export
+GRAFANA_PASSWORD=pdf_export
 ```
-Modifiez ces valeurs si nécessaire.
+
 
 ### Utilisation
 Pour lancer le projet, exécutez la commande suivante :
