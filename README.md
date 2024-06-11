@@ -33,7 +33,7 @@ GRAFANA_PASSWORD=pdf_export
 Pour lancer le projet, exécutez la commande suivante :
 
 ```bash
-docker-compose up --build
+docker compose up --build
 ```
 Le serveur sera accessible sur le port 3000.
 
