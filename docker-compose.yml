@@ -1,0 +1,10 @@
+version: '3'
+services:
+  server:
+    build: .
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./output:/usr/src/app/output
+    environment:
+      - PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
