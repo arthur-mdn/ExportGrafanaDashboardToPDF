@@ -42,7 +42,7 @@ Le serveur répondra avec l'URL du PDF généré.
 #### Via cURL
 ```bash
 curl -X POST http://localhost:3000/generate-pdf -H "Content-Type: application/json" -d '{
-"url": "http://votre-grafana-server:3000/d/your-dashboard-id?orgId=1"
+"url": "http://votre-serveur-grafana/d/your-dashboard-id?orgId=1&kiosk"
 }'
 ```
 #### Via un bouton HTML injecté dans Grafana
