@@ -1,6 +1,8 @@
 node_modules
+.idea
 
 output/*
 !output/.gitkeep
 
 .env
+.DS_Store
