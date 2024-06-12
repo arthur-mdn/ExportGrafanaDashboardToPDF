@@ -15,7 +15,7 @@ Il est possible d'injecter un bouton dans Grafana pour générer un PDF directem
 
 Clonez ce dépôt et accédez au répertoire du projet :
 
-```bash
+```shell
 git clone https://github.com/arthur-mdn/grafana-export-to-pdf/
 cd grafana-export-to-pdf
 ```
@@ -25,7 +25,7 @@ cd grafana-export-to-pdf
 ### Variables d'environnement
 Dupliquez le fichier `.env.example` et renommez-le en `.env`. 
 
-```bash
+```shell
 cp .env.template .env
 nano .env
 ```
@@ -41,7 +41,7 @@ GRAFANA_PASSWORD=pdf_export
 ## Utilisation
 Pour lancer le projet, exécutez la commande suivante :
 
-```bash
+```shell
 docker compose up -d --build
 ```
 Le serveur sera accessible sur le port 3000.
@@ -52,10 +52,18 @@ Le serveur répondra avec l'URL du PDF généré.
 
 #### Via cURL
 ```bash
-curl -X POST http://localhost:3000/generate-pdf -H "Content-Type: application/json" -d '{
-"url": "http://votre-serveur-grafana/d/your-dashboard-id?orgId=1&kiosk"
-}'
+curl \
+  -H "Content-Type: application/json" \
+  -X POST \
+  -d '{ "url": "http://votre-serveur-grafana/d/your-dashboard-id?orgId=1&kiosk"}' \
+  http://localhost:3000/generate-pdf
 ```
+
+#### Via le fichier shell `generate-pdf.sh`
+```bash
+docker compose exec server /usr/src/app/generate-pdf.sh GF_DASH_URL 'http://votre-serveur-grafana/d/your-dashboard-id?orgId=1&kiosk'
+```
+
 #### Via un bouton HTML injecté dans Grafana
 > Vous devez vous assurer que le paramètre ``disable_sanitize_html`` est à ``true`` dans le fichier de configuration Grafana pour pouvoir injecter du code HTML et Javascript.
 > 
