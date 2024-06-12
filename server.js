@@ -15,10 +15,17 @@ app.use(cors());
 app.use('/output', express.static(path.join(__dirname, 'output')));
 
 app.post('/generate-pdf', (req, res) => {
-  const { url } = req.body;
+  let { url, from, to } = req.body;
 
   if (!url) {
     return res.status(400).send('URL is required');
+  }
+
+  if (from) {
+    url += `&from=${from}`;
+  }
+  if (to) {
+    url += `&to=${to}`;
   }
 
   const script = `node grafana_pdf.js "${url}" "${GRAFANA_USER}:${GRAFANA_PASSWORD}"`;

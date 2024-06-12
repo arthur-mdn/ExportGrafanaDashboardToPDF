@@ -5,7 +5,11 @@ set -a
 [ -f /usr/src/app/.env ] && . /usr/src/app/.env
 set +a
 
-# Vérifiez les arguments en ligne de commande
+# Variables par défaut pour from et to
+GF_FROM=""
+GF_TO=""
+
+# Vérifiez les arguments
 while [ "$1" != "" ]; do
     case $1 in
         GF_DASH_URL )           shift
@@ -16,6 +20,12 @@ while [ "$1" != "" ]; do
                                 ;;
         GF_PASSWORD )           shift
                                 GF_PASSWORD=$1
+                                ;;
+        GF_FROM )               shift
+                                GF_FROM=$1
+                                ;;
+        GF_TO )                 shift
+                                GF_TO=$1
                                 ;;
         * )                     echo "Option $1 not recognized"
                                 exit 1
@@ -33,8 +43,18 @@ fi
 GF_USER=${GF_USER:-$DEFAULT_GF_USER}
 GF_PASSWORD=${GF_PASSWORD:-$DEFAULT_GF_PASSWORD}
 
+# Ajouter les paramètres from et to à la requête POST si fournis
+JSON_PAYLOAD="{\"url\": \"${GF_DASH_URL}\""
+if [ -n "$GF_FROM" ]; then
+  JSON_PAYLOAD="${JSON_PAYLOAD}, \"from\": \"${GF_FROM}\""
+fi
+if [ -n "$GF_TO" ]; then
+  JSON_PAYLOAD="${JSON_PAYLOAD}, \"to\": \"${GF_TO}\""
+fi
+JSON_PAYLOAD="${JSON_PAYLOAD}}"
+
 # Envoyer la requête HTTP POST au serveur Node.js pour générer le PDF
-RESPONSE=$(curl -s -X POST http://localhost:3000/generate-pdf -H "Content-Type: application/json" -d "{\"url\": \"${GF_DASH_URL}\"}")
+RESPONSE=$(curl -s -X POST http://localhost:3000/generate-pdf -H "Content-Type: application/json" -d "$JSON_PAYLOAD")
 
 # Vérifiez la réponse du serveur Node.js
 PDF_URL=$(echo $RESPONSE | jq -r '.pdfUrl')

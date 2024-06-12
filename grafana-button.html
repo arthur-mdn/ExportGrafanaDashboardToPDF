@@ -4,10 +4,10 @@
     const pdfGenerationServerUrl = 'http://localhost:3000/';
     /* */
 
-    if(pdfGeneration && pdfGenerationServerUrl){
-        document.onclick = function(){
+    if (pdfGeneration && pdfGenerationServerUrl) {
+        document.onclick = function () {
             let shareModalContent = document.querySelector('div[class*="shareModalContent"]');
-            if(shareModalContent){
+            if (shareModalContent) {
                 if (!shareModalContent.querySelector('.export-pdf-container')) {
                     let div = document.createElement('div');
                     div.classList.add('export-pdf-container');
@@ -37,13 +37,17 @@
                         <div class="loader"></div>
                         <span>Exporter en PDF</span>
                     `;
-                    button.onclick = async function() {
+                    button.onclick = async function () {
                         button.classList.add('waiting');
                         button.setAttribute('disabled', true);
                         let url = window.location.href;
                         if (!url.includes("&kiosk")) {
                             url += "&kiosk";
                         }
+
+                        const from = '${__from}';
+                        const to = '${__to}';
+
                         try {
                             console.log('Requesting PDF generation for URL:', url);
                             let completeUrl = pdfGenerationServerUrl + "/generate-pdf";
@@ -57,7 +61,7 @@
                                 headers: {
                                     'Content-Type': 'application/json'
                                 },
-                                body: JSON.stringify({ url: url })
+                                body: JSON.stringify({ url: url, from: from, to: to })
                             });
 
                             if (response.ok) {
@@ -84,7 +88,6 @@
             }
         }
     }
-
 </script>
 
 <style>

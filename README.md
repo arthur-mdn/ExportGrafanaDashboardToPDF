@@ -63,6 +63,10 @@ curl \
 ```bash
 docker compose exec server /usr/src/app/generate-pdf.sh GF_DASH_URL 'http://votre-serveur-grafana/d/your-dashboard-id?orgId=1&kiosk'
 ```
+> Vous pouvez ajouter les paramètres from et to pour spécifier une plage de temps. (Dans l'exemple ci-dessous, la plage de temps est l'année dernière.)
+> ```bash
+> docker compose exec server /usr/src/app/generate-pdf.sh GF_DASH_URL 'http://votre-serveur-grafana/d/your-dashboard-id?orgId=1&kiosk' GF_FROM 'now-1y/y' GF_TO 'now-1y/y'
+> ```
 
 #### Via un bouton HTML injecté dans Grafana
 > Vous devez vous assurer que le paramètre ``disable_sanitize_html`` est à ``true`` dans le fichier de configuration Grafana pour pouvoir injecter du code HTML et Javascript.
