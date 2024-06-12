@@ -1,86 +1,9 @@
 <script>
+    /* Edit the following variables to enable/disable PDF generation and set the server URL */
     const pdfGeneration = true;
     const pdfGenerationServerUrl = 'http://localhost:3000/';
-</script>
+    /* */
 
-<style>
-    .export-pdf-container button{
-        display: inline-flex;
-        gap:0.5rem;
-        -webkit-box-align: center;
-        align-items: center;
-        font-size: 14px;
-        font-weight: 500;
-        font-family: Inter, Helvetica, Arial, sans-serif;
-        padding: 0px 15px;
-        height: 32px;
-        line-height: 30px;
-        vertical-align: middle;
-        cursor: pointer;
-        border-radius: 2px;
-        background: rgb(61, 113, 217);
-        color: rgb(255, 255, 255);
-        border: 1px solid transparent;
-        transition: background-color 250ms cubic-bezier(0.4, 0, 0.2, 1) 0ms, box-shadow 250ms cubic-bezier(0.4, 0, 0.2, 1) 0ms, border-color 250ms cubic-bezier(0.4, 0, 0.2, 1) 0ms, color 250ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;
-    }
-
-    .export-pdf-container button:hover {
-        background: rgb(90, 134, 222);
-        color: rgb(255, 255, 255);
-        box-shadow: rgba(1, 4, 9, 0.75) 0px 1px 2px;
-        border-color: transparent;
-    }
-    .export-pdf-container button[disabled] {
-        cursor: not-allowed;
-        box-shadow: none;
-        color: rgba(204, 204, 220, 0.6);
-        transition: none 0s ease 0s;
-        background: rgba(204, 204, 220, 0.04);
-        border: 1px solid transparent;
-    }
-    .export-pdf-container button[disabled] svg {
-        opacity:0.6;
-    }
-
-    .export-pdf-container button svg {
-        width: 1rem
-    }
-
-    .loader {
-        display: none;
-    }
-
-    .export-pdf-container button[disabled] .loader {
-        display: inline-block;
-    }
-
-    .export-pdf-container button[disabled] svg {
-        display: none;
-    }
-
-    .loader {
-        transform: translate(-50%, -50%);
-        border: 2px solid #717171;
-        border-radius: 50%;
-        border-top: 2px solid #ffffff;
-        width: 1rem;
-        height: 1rem;
-        -webkit-animation: spin 1.5s linear infinite;
-        animation: spin 1.5s linear infinite;
-    }
-
-    @-webkit-keyframes spin {
-        0% { -webkit-transform: rotate(0deg); }
-        100% { -webkit-transform: rotate(360deg); }
-    }
-
-    @keyframes spin {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
-    }
-
-</style>
-<script>
     if(pdfGeneration && pdfGenerationServerUrl){
         document.onclick = function(){
             let shareModalContent = document.querySelector('div[class*="shareModalContent"]');
@@ -163,3 +86,81 @@
     }
 
 </script>
+
+<style>
+    .export-pdf-container button{
+        display: inline-flex;
+        gap:0.5rem;
+        -webkit-box-align: center;
+        align-items: center;
+        font-size: 14px;
+        font-weight: 500;
+        font-family: Inter, Helvetica, Arial, sans-serif;
+        padding: 0px 15px;
+        height: 32px;
+        line-height: 30px;
+        vertical-align: middle;
+        cursor: pointer;
+        border-radius: 2px;
+        background: rgb(61, 113, 217);
+        color: rgb(255, 255, 255);
+        border: 1px solid transparent;
+        transition: background-color 250ms cubic-bezier(0.4, 0, 0.2, 1) 0ms, box-shadow 250ms cubic-bezier(0.4, 0, 0.2, 1) 0ms, border-color 250ms cubic-bezier(0.4, 0, 0.2, 1) 0ms, color 250ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;
+    }
+
+    .export-pdf-container button:hover {
+        background: rgb(90, 134, 222);
+        color: rgb(255, 255, 255);
+        box-shadow: rgba(1, 4, 9, 0.75) 0px 1px 2px;
+        border-color: transparent;
+    }
+    .export-pdf-container button[disabled] {
+        cursor: not-allowed;
+        box-shadow: none;
+        color: rgba(204, 204, 220, 0.6);
+        transition: none 0s ease 0s;
+        background: rgba(204, 204, 220, 0.04);
+        border: 1px solid transparent;
+    }
+    .export-pdf-container button[disabled] svg {
+        opacity:0.6;
+    }
+
+    .export-pdf-container button svg {
+        width: 1rem
+    }
+
+    .loader {
+        display: none;
+    }
+
+    .export-pdf-container button[disabled] .loader {
+        display: inline-block;
+    }
+
+    .export-pdf-container button[disabled] svg {
+        display: none;
+    }
+
+    .loader {
+        transform: translate(-50%, -50%);
+        border: 2px solid #717171;
+        border-radius: 50%;
+        border-top: 2px solid #ffffff;
+        width: 1rem;
+        height: 1rem;
+        -webkit-animation: spin 1.5s linear infinite;
+        animation: spin 1.5s linear infinite;
+    }
+
+    @-webkit-keyframes spin {
+        0% { -webkit-transform: rotate(0deg); }
+        100% { -webkit-transform: rotate(360deg); }
+    }
+
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+
+</style>

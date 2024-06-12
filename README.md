@@ -2,6 +2,8 @@
 
 Ce projet permet d'exporter des tableaux de bord Grafana en PDF en utilisant Puppeteer. Le projet utilise un serveur Node.js pour gérer les requêtes HTTP et lancer Puppeteer pour générer les PDFs.
 
+Il est possible d'injecter un bouton dans Grafana pour générer un PDF directement depuis l'interface.
+
 ![Affichage du bouton dans Grafana](https://github.com/arthur-mdn/grafana-export-to-pdf/blob/main/illustrations/injected-button-in-grafana.png)
 
 ## Prérequis
@@ -21,7 +23,14 @@ cd grafana-export-to-pdf
 ## Configuration
 
 ### Variables d'environnement
-Dupliquez le fichier `.env.example` et renommez-le en `.env`. Modifiez les valeurs en fonction de votre configuration.
+Dupliquez le fichier `.env.example` et renommez-le en `.env`. 
+
+```bash
+cp .env.template .env
+nano .env
+```
+
+Modifiez les valeurs en fonction de votre configuration.
 
 ```dotenv
 GRAFANA_USER=pdf_export
