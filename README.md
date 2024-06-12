@@ -37,7 +37,6 @@ GRAFANA_USER=pdf_export
 GRAFANA_PASSWORD=pdf_export
 ```
 
-
 ## Utilisation
 Pour lancer le projet, exécutez la commande suivante :
 
@@ -63,10 +62,6 @@ curl \
 ```bash
 docker compose exec server /usr/src/app/generate-pdf.sh GF_DASH_URL 'http://votre-serveur-grafana/d/your-dashboard-id?orgId=1&kiosk'
 ```
-> Vous pouvez ajouter les paramètres from et to pour spécifier une plage de temps. (Dans l'exemple ci-dessous, la plage de temps est l'année dernière.)
-> ```bash
-> docker compose exec server /usr/src/app/generate-pdf.sh GF_DASH_URL 'http://votre-serveur-grafana/d/your-dashboard-id?orgId=1&kiosk' GF_FROM 'now-1y/y' GF_TO 'now-1y/y'
-> ```
 
 #### Via un bouton HTML injecté dans Grafana
 > Vous devez vous assurer que le paramètre ``disable_sanitize_html`` est à ``true`` dans le fichier de configuration Grafana pour pouvoir injecter du code HTML et Javascript.
@@ -80,3 +75,26 @@ const pdfGeneration = true;
 const pdfGenerationServerUrl = 'http://localhost:3000/';
 ```
 
+
+### Génération d'un PDF avec une plage de temps
+Pour générer un PDF avec une plage de temps, envoyez une requête POST à l'API /generate-pdf avec l'URL du tableau de bord Grafana en paramètre et les paramètres from et to.
+> Dans l'exemple ci-dessous, la plage de temps est ``now-1y/y``, ce qui correspond à l'année dernière.
+
+> Voir plus de détails sur les plages de temps dans la [documentation Grafana](https://grafana.com/docs/grafana/latest/dashboards/use-dashboards/#time-units-and-relative-ranges).
+
+#### Via cURL
+```bash
+curl \
+  -H "Content-Type: application/json" \
+  -X POST \
+  -d '{ "url": "http://votre-serveur-grafana/d/your-dashboard-id?orgId=1&kiosk", "from": "now-1y/y", "to": "now-1y/y"}' \
+  http://localhost:3000/generate-pdf
+```
+
+#### Via le fichier shell `generate-pdf.sh`
+```bash
+docker compose exec server /usr/src/app/generate-pdf.sh GF_DASH_URL 'http://votre-serveur-grafana/d/your-dashboard-id?orgId=1&kiosk' GF_FROM 'now-1y/y' GF_TO 'now-1y/y'
+```
+
+#### Via un bouton HTML injecté dans Grafana
+Le bouton HTML injecté récupère déjà les valeurs de la plage de temps sélectionnée dans Grafana. Vous n'avez pas besoin de les spécifier manuellement.
