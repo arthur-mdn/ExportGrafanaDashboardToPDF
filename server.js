@@ -46,7 +46,7 @@ app.post('/generate-pdf', (req, res) => {
     }
     console.log(`stdout: ${stdout}`);
 
-    const match = stdout.match(/PDF généré : (.+\.pdf)/);
+    const match = stdout.match(/PDF generated : (.+\.pdf)/);
     if (match) {
       const pdfPath = match[1];
       const pdfUrl = `http://localhost:${port}/output/${path.basename(pdfPath)}`;

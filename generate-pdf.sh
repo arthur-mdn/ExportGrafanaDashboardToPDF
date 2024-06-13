@@ -1,15 +1,15 @@
 #!/bin/sh
 
-# Charger les variables d'environnement du fichier .env
+# Load environment variables from the .env file
 set -a
 [ -f /usr/src/app/.env ] && . /usr/src/app/.env
 set +a
 
-# Variables par défaut pour from et to
+# Default values for from and to
 GF_FROM=""
 GF_TO=""
 
-# Vérifiez les arguments
+# Check arguments
 while [ "$1" != "" ]; do
     case $1 in
         GF_DASH_URL )           shift
@@ -33,17 +33,17 @@ while [ "$1" != "" ]; do
     shift
 done
 
-# Vérifiez que GF_DASH_URL est défini
+# Check that GF_DASH_URL is defined
 if [ -z "$GF_DASH_URL" ]; then
-  echo "La variable GF_DASH_URL doit être définie."
+  echo "The GF_DASH_URL variable must be defined."
   exit 1
 fi
 
-# Utiliser les valeurs par défaut du .env si les arguments ne sont pas fournis
+# Use default values from .env if arguments are not provided
 GF_USER=${GF_USER:-$DEFAULT_GF_USER}
 GF_PASSWORD=${GF_PASSWORD:-$DEFAULT_GF_PASSWORD}
 
-# Ajouter les paramètres from et to à la requête POST si fournis
+# Add from and to parameters to the POST request if provided
 JSON_PAYLOAD="{\"url\": \"${GF_DASH_URL}\""
 if [ -n "$GF_FROM" ]; then
   JSON_PAYLOAD="${JSON_PAYLOAD}, \"from\": \"${GF_FROM}\""
@@ -53,18 +53,18 @@ if [ -n "$GF_TO" ]; then
 fi
 JSON_PAYLOAD="${JSON_PAYLOAD}}"
 
-# Envoyer la requête HTTP POST au serveur Node.js pour générer le PDF
+# Send the HTTP POST request to the Node.js server to generate the PDF
 RESPONSE=$(curl -s -X POST http://localhost:3000/generate-pdf -H "Content-Type: application/json" -d "$JSON_PAYLOAD")
 
-# Vérifiez si la réponse est un JSON valide
+# Check if the response is valid JSON
 if echo "$RESPONSE" | jq . >/dev/null 2>&1; then
   PDF_URL=$(echo $RESPONSE | jq -r '.pdfUrl')
   if [ "$PDF_URL" != "null" ]; then
-    echo "PDF généré : $PDF_URL"
+    echo "PDF generated: $PDF_URL"
   else
-    echo "Erreur lors de la génération du PDF"
-    echo "Réponse du serveur : $RESPONSE"
+    echo "Error generating PDF"
+    echo "Server response: $RESPONSE"
   fi
 else
-  echo "Erreur: La réponse du serveur n'est pas un JSON valide. Réponse brute : $RESPONSE"
+  echo "Error: The server response is not valid JSON. Raw response: $RESPONSE"
 fi

@@ -35,7 +35,7 @@
                             </g>
                         </svg>
                         <div class="loader"></div>
-                        <span>Exporter en PDF</span>
+                        <span>Export to PDF</span>
                     `;
                     button.onclick = async function () {
                         button.classList.add('waiting');
@@ -61,7 +61,7 @@
                                 headers: {
                                     'Content-Type': 'application/json'
                                 },
-                                body: JSON.stringify({ url: url, from: from, to: to })
+                                body: JSON.stringify({url: url, from: from, to: to})
                             });
 
                             if (response.ok) {
@@ -72,19 +72,19 @@
                                 const errorText = await response.text();
                                 console.error('Response error:', errorText);
                                 if (response.status === 500) {
-                                    alert('Erreur lors de la génération du PDF. Veuillez vérifier les logs du serveur pour plus de détails.');
+                                    alert('Error generating PDF. Please check the server logs for more details.');
                                 } else if (response.status === 400) {
-                                    alert('Erreur de requête : URL manquante ou invalide.');
+                                    alert('Request error: Missing or invalid URL.');
                                 } else {
-                                    alert('Erreur inconnue lors de la génération du PDF.');
+                                    alert('Unknown error generating PDF.');
                                 }
                             }
                         } catch (error) {
                             console.error('Fetch error:', error);
                             if (error.message.includes('Failed to fetch')) {
-                                alert('Impossible de contacter le serveur de génération de PDF. Êtes-vous sûr que le docker est actif ? Vérifiez son statut et l\'URL configurée.');
+                                alert('Unable to contact the PDF generation server. Are you sure the Docker is running? Check its status and the configured URL.');
                             } else {
-                                alert('Erreur lors de la génération du PDF. Veuillez vérifier la console pour plus de détails.');
+                                alert('Error generating PDF. Please check the console for more details.');
                             }
                         } finally {
                             button.classList.remove('waiting');
@@ -101,9 +101,9 @@
 </script>
 
 <style>
-    .export-pdf-container button{
+    .export-pdf-container button {
         display: inline-flex;
-        gap:0.5rem;
+        gap: 0.5rem;
         -webkit-box-align: center;
         align-items: center;
         font-size: 14px;
@@ -127,6 +127,7 @@
         box-shadow: rgba(1, 4, 9, 0.75) 0px 1px 2px;
         border-color: transparent;
     }
+
     .export-pdf-container button[disabled] {
         cursor: not-allowed;
         box-shadow: none;
@@ -135,8 +136,9 @@
         background: rgba(204, 204, 220, 0.04);
         border: 1px solid transparent;
     }
+
     .export-pdf-container button[disabled] svg {
-        opacity:0.6;
+        opacity: 0.6;
     }
 
     .export-pdf-container button svg {
@@ -167,13 +169,21 @@
     }
 
     @-webkit-keyframes spin {
-        0% { -webkit-transform: rotate(0deg); }
-        100% { -webkit-transform: rotate(360deg); }
+        0% {
+            -webkit-transform: rotate(0deg);
+        }
+        100% {
+            -webkit-transform: rotate(360deg);
+        }
     }
 
     @keyframes spin {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
+        0% {
+            transform: rotate(0deg);
+        }
+        100% {
+            transform: rotate(360deg);
+        }
     }
 
 </style>

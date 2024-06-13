@@ -79,6 +79,8 @@ const pdfGeneration = true;
 const pdfGenerationServerUrl = 'http://localhost:3000/';
 ```
 
+The button should now be displayed in the native Grafana share menu.
+
 ### Generating a PDF with a time range
 
 To generate a PDF with a time range, send a POST request to the /generate-pdf API with the Grafana dashboard URL as a parameter and the from and to parameters.
