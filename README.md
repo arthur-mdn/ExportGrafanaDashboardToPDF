@@ -106,6 +106,10 @@ docker compose exec server /usr/src/app/generate-pdf.sh GF_DASH_URL 'http://your
 #### Using an HTML button injected into Grafana
 The injected HTML button already retrieves the values of the selected time range in Grafana. You do not need to specify them manually.
 
-# Author
+## Author
 
-- [Arthur M.](https://mondon.pro)
+- [Arthur Mondon](https://mondon.pro)
+
+### Contributing
+
+- [svet-b](https://gist.github.com/svet-b/1ad0656cd3ce0e1a633e16eb20f66425)
