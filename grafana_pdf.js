@@ -70,30 +70,44 @@ const auth_header = 'Basic ' + Buffer.from(auth_string).toString('base64');
             }
         });
 
-        let dashboardName = await page.evaluate(() => {
-            const dashboardElement = document.querySelector('p');
-            return dashboardElement ? dashboardElement.innerText.trim() : null;
-        });
+        let dashboardName = 'output_grafana';
+        let date = new Date().toISOString().split('T')[0];
 
-        if (!dashboardName) {
-            throw new Error("Unable to fetch dashboard name. The selector 'p' might be incorrect or missing.");
+        if (process.env.EXTRACT_DATE_AND_DASHBOARD_NAME_FROM_HTML_PANEL_ELEMENTS === 'true') {
+            console.log("Extracting dashboard name and date from the HTML page...");
+            dashboardName = await page.evaluate(() => {
+                const dashboardElement = document.querySelector('p');
+                return dashboardElement ? dashboardElement.innerText.trim() : null;
+            }) || dashboardName;
+
+            date = await page.evaluate(() => {
+                const dateElement = document.getElementById('display_actual_date');
+                return dateElement ? dateElement.innerText.trim() : null;
+            }) || date;
+
+            if (!dashboardName) {
+                console.log("Dashboard name not found. Using default value.");
+            } else {
+                console.log("Dashboard name fetched:", dashboardName);
+            }
+
+            if (!date) {
+                console.log("Date not found. Using default value.");
+            } else {
+                console.log("Date fetched:", date);
+            }
         } else {
-            console.log("Dashboard name fetched:", dashboardName);
-        }
-
-        let date = await page.evaluate(() => {
-            const dateElement = document.getElementById('display_actual_date');
-            return dateElement ? dateElement.innerText.trim() : null;
-        });
-
-        if (!date) {
-            const today = new Date();
-            const day = String(today.getDate()).padStart(2, '0');
-            const month = String(today.getMonth() + 1).padStart(2, '0');
-            const year = today.getFullYear();
-            date = `${year}-${month}-${day}`;
-        } else {
-            console.log("Date fetched:", date);
+            console.log("Extracting dashboard name and date from the URL...");
+            const urlParts = new URL(url);
+            const pathSegments = urlParts.pathname.split('/');
+            dashboardName = pathSegments[pathSegments.length - 1] || dashboardName;
+            const from = urlParts.searchParams.get('from');
+            const to = urlParts.searchParams.get('to');
+            if (from && to) {
+                date = `${new Date(parseInt(from)).toISOString().split('T')[0]}_to_${new Date(parseInt(to)).toISOString().split('T')[0]}`;
+            }
+            console.log("Dashboard name fetched from URL:", dashboardName);
+            console.log("Date fetched from URL:", date);
         }
 
         outfile = `./output/${dashboardName.replace(/\s+/g, '_')}_${date.replace(/\s+/g, '_')}.pdf`;
@@ -140,7 +154,7 @@ const auth_header = 'Basic ' + Buffer.from(auth_string).toString('base64');
             displayHeaderFooter: false,
             margin: {top: 0, right: 0, bottom: 0, left: 0}
         });
-        console.log(`PDF généré : ${outfile}`);
+        console.log(`PDF generated: ${outfile}`);
 
         await browser.close();
         console.log("Browser closed.");
