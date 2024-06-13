@@ -2,7 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
-const { exec } = require('child_process');
+const { fork } = require('child_process');
 
 const GRAFANA_USER = process.env.GRAFANA_USER;
 const GRAFANA_PASSWORD = process.env.GRAFANA_PASSWORD;
@@ -32,32 +32,20 @@ app.post('/generate-pdf', (req, res) => {
 
   const finalUrl = urlObj.toString();
 
-  const script = `node grafana_pdf.js "${finalUrl}" "${GRAFANA_USER}:${GRAFANA_PASSWORD}"`;
-  console.log(`Executing script: ${script}`);
+  const script = fork('grafana_pdf.js', [finalUrl, `${GRAFANA_USER}:${GRAFANA_PASSWORD}`]);
 
-  exec(script, (error, stdout, stderr) => {
-    if (error) {
-      console.error(`Error: ${error.message}`);
-      console.error(`stderr: ${stderr}`);
-      if (stderr.includes('ENOTFOUND')) {
-        return res.status(500).send('Error: Unable to reach the Grafana server. Please check the URL and try again.');
-      }
-      return res.status(500).send('Error generating PDF');
-    }
-    if (stderr) {
-      console.error(`stderr: ${stderr}`);
-      return res.status(500).send('Error generating PDF');
-    }
-    console.log(`stdout: ${stdout}`);
-
-    const match = stdout.match(/PDF generated : (.+\.pdf)/);
-    if (match) {
-      const pdfPath = match[1];
+  script.on('message', (message) => {
+    if (message.success) {
+      const pdfPath = message.path;
       const pdfUrl = `http://localhost:${port}/output/${path.basename(pdfPath)}`;
       res.json({ pdfUrl });
     } else {
-      res.status(500).send('Error generating PDF');
+      res.status(500).send(`Error generating PDF: ${message.error}`);
     }
+  });
+
+  script.on('error', (error) => {
+    res.status(500).send(`Error generating PDF: ${error.message}`);
   });
 });
 

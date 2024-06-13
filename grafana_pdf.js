@@ -158,8 +158,11 @@ const auth_header = 'Basic ' + Buffer.from(auth_string).toString('base64');
 
         await browser.close();
         console.log("Browser closed.");
+
+        process.send({ success: true, path: outfile });
     } catch (error) {
         console.error("Error during PDF generation:", error.message);
+        process.send({ success: false, error: error.message });
         process.exit(1);
     }
 })();
