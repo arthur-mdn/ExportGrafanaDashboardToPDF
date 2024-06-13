@@ -65,6 +65,7 @@ docker compose exec server /usr/src/app/generate-pdf.sh GF_DASH_URL 'http://your
 
 #### Using an HTML button injected into Grafana
 > You must ensure that the ``disable_sanitize_html`` parameter is set to ``true`` in the Grafana configuration file to be able to inject HTML and Javascript code.
+>
 > ![Disable Sanitize HTML in Grafana Settings](https://github.com/arthur-mdn/grafana-export-to-pdf/blob/main/illustrations/grafana-disable-sanitize-html.png)
 
 To inject a button directly into Grafana, add the content of the `grafana-button.html` file to the "Text" field of a Grafana text panel.
