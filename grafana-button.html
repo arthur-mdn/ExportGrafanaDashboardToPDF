@@ -71,11 +71,21 @@
                             } else {
                                 const errorText = await response.text();
                                 console.error('Response error:', errorText);
-                                alert('Erreur lors de la génération du PDF.');
+                                if (response.status === 500) {
+                                    alert('Erreur lors de la génération du PDF. Veuillez vérifier les logs du serveur pour plus de détails.');
+                                } else if (response.status === 400) {
+                                    alert('Erreur de requête : URL manquante ou invalide.');
+                                } else {
+                                    alert('Erreur inconnue lors de la génération du PDF.');
+                                }
                             }
                         } catch (error) {
                             console.error('Fetch error:', error);
-                            alert('Erreur lors de la génération du PDF.');
+                            if (error.message.includes('Failed to fetch')) {
+                                alert('Impossible de contacter le serveur de génération de PDF. Êtes-vous sûr que le docker est actif ? Vérifiez son statut et l\'URL configurée.');
+                            } else {
+                                alert('Erreur lors de la génération du PDF. Veuillez vérifier la console pour plus de détails.');
+                            }
                         } finally {
                             button.classList.remove('waiting');
                             button.removeAttribute('disabled');

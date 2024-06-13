@@ -2,7 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
-const { exec} = require('child_process');
+const { exec } = require('child_process');
 
 const GRAFANA_USER = process.env.GRAFANA_USER;
 const GRAFANA_PASSWORD = process.env.GRAFANA_PASSWORD;
@@ -35,6 +35,9 @@ app.post('/generate-pdf', (req, res) => {
     if (error) {
       console.error(`Error: ${error.message}`);
       console.error(`stderr: ${stderr}`);
+      if (stderr.includes('ENOTFOUND')) {
+        return res.status(500).send('Error: Unable to reach the Grafana server. Please check the URL and try again.');
+      }
       return res.status(500).send('Error generating PDF');
     }
     if (stderr) {

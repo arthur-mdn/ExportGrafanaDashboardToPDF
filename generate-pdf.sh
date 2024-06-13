@@ -35,7 +35,7 @@ done
 
 # Vérifiez que GF_DASH_URL est défini
 if [ -z "$GF_DASH_URL" ]; then
-  echo "La variable d'environnement GF_DASH_URL doit être définie."
+  echo "La variable GF_DASH_URL doit être définie."
   exit 1
 fi
 
@@ -56,11 +56,15 @@ JSON_PAYLOAD="${JSON_PAYLOAD}}"
 # Envoyer la requête HTTP POST au serveur Node.js pour générer le PDF
 RESPONSE=$(curl -s -X POST http://localhost:3000/generate-pdf -H "Content-Type: application/json" -d "$JSON_PAYLOAD")
 
-# Vérifiez la réponse du serveur Node.js
-PDF_URL=$(echo $RESPONSE | jq -r '.pdfUrl')
-if [ "$PDF_URL" != "null" ]; then
-  echo "PDF généré : $PDF_URL"
+# Vérifiez si la réponse est un JSON valide
+if echo "$RESPONSE" | jq . >/dev/null 2>&1; then
+  PDF_URL=$(echo $RESPONSE | jq -r '.pdfUrl')
+  if [ "$PDF_URL" != "null" ]; then
+    echo "PDF généré : $PDF_URL"
+  else
+    echo "Erreur lors de la génération du PDF"
+    echo "Réponse du serveur : $RESPONSE"
+  fi
 else
-  echo "Erreur lors de la génération du PDF"
-  echo "Réponse du serveur : $RESPONSE"
+  echo "Erreur: La réponse du serveur n'est pas un JSON valide. Réponse brute : $RESPONSE"
 fi
