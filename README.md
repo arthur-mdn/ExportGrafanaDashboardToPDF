@@ -1,19 +1,19 @@
 # Grafana PDF Exporter
 
-Ce projet permet d'exporter des tableaux de bord Grafana en PDF en utilisant Puppeteer. Le projet utilise un serveur Node.js pour gérer les requêtes HTTP et lancer Puppeteer pour générer les PDFs.
+This project allows exporting Grafana dashboards to PDF using Puppeteer. The project uses a Node.js server to handle HTTP requests and launch Puppeteer to generate the PDFs.
 
-Il est possible d'injecter un bouton dans Grafana pour générer un PDF directement depuis l'interface.
+It is possible to inject a button into Grafana to generate a PDF directly from the interface.
 
-![Affichage du bouton dans Grafana](https://github.com/arthur-mdn/grafana-export-to-pdf/blob/main/illustrations/injected-button-in-grafana.png)
+![Button displayed in Grafana](https://github.com/arthur-mdn/grafana-export-to-pdf/blob/main/illustrations/injected-button-in-grafana.png)
 
-## Prérequis
+## Prerequisites
 
 - Docker
 - Docker Compose
 
 ## Installation
 
-Clonez ce dépôt et accédez au répertoire du projet :
+Clone this repository and navigate to the project directory:
 
 ```shell
 git clone https://github.com/arthur-mdn/grafana-export-to-pdf/
@@ -22,79 +22,85 @@ cd grafana-export-to-pdf
 
 ## Configuration
 
-### Variables d'environnement
-Dupliquez le fichier `.env.example` et renommez-le en `.env`. 
+### Environment Variables
+Duplicate the `.env.example` file and rename it to `.env`. 
 
 ```shell
 cp .env.template .env
 nano .env
 ```
 
-Modifiez les valeurs en fonction de votre configuration.
+Modify the values according to your configuration.
 
 ```dotenv
 GRAFANA_USER=pdf_export
 GRAFANA_PASSWORD=pdf_export
 ```
 
-## Utilisation
-Pour lancer le projet, exécutez la commande suivante :
+## Usage
+To start the project, run the following command:
 
 ```shell
 docker compose up -d --build
 ```
-Le serveur sera accessible sur le port 3000.
+The server will be accessible on port 3000.
 
-### Génération d'un PDF
-Pour générer un PDF, envoyez une requête POST à l'API /generate-pdf avec l'URL du tableau de bord Grafana en paramètre.
-Le serveur répondra avec l'URL du PDF généré.
+### Generating a PDF
+To generate a PDF, send a POST request to the /generate-pdf API with the Grafana dashboard URL as a parameter.
+The server will respond with the URL of the generated PDF.
 
-#### Via cURL
+#### Using cURL
 ```bash
 curl \
   -H "Content-Type: application/json" \
   -X POST \
-  -d '{ "url": "http://votre-serveur-grafana/d/your-dashboard-id?orgId=1&kiosk"}' \
+  -d '{ "url": "http://your-grafana-server/d/your-dashboard-id?orgId=1&kiosk"}' \
   http://localhost:3000/generate-pdf
 ```
 
-#### Via le fichier shell `generate-pdf.sh`
+#### Using the `generate-pdf.sh` shell script
 ```bash
-docker compose exec server /usr/src/app/generate-pdf.sh GF_DASH_URL 'http://votre-serveur-grafana/d/your-dashboard-id?orgId=1&kiosk'
+docker compose exec server /usr/src/app/generate-pdf.sh GF_DASH_URL 'http://your-grafana-server/d/your-dashboard-id?orgId=1&kiosk'
 ```
 
-#### Via un bouton HTML injecté dans Grafana
-> Vous devez vous assurer que le paramètre ``disable_sanitize_html`` est à ``true`` dans le fichier de configuration Grafana pour pouvoir injecter du code HTML et Javascript.
-> 
-![Comment injecter le bouton dans Grafana](https://github.com/arthur-mdn/grafana-export-to-pdf/blob/main/illustrations/inject-button-in-grafana.png)
+#### Using an HTML button injected into Grafana
+> You must ensure that the ``disable_sanitize_html`` parameter is set to ``true`` in the Grafana configuration file to be able to inject HTML and Javascript code.
 
-Pour injecter un bouton directement dans Grafana, ajoutez le contenu du fichier `grafana-button.html` dans le champ "Text" d'un panneau de texte Grafana.
-Veillez à modifier l'URL du serveur si nécessaire.
+![How to inject the button in Grafana](https://github.com/arthur-mdn/grafana-export-to-pdf/blob/main/illustrations/inject-button-in-grafana.png)
+
+To inject a button directly into Grafana, add the content of the `grafana-button.html` file to the "Text" field of a Grafana text panel.
+Make sure to modify the server URL if necessary.
+
 ```javascript
 const pdfGeneration = true;
 const pdfGenerationServerUrl = 'http://localhost:3000/';
 ```
 
+### Generating a PDF with a time range
 
-### Génération d'un PDF avec une plage de temps
-Pour générer un PDF avec une plage de temps, envoyez une requête POST à l'API /generate-pdf avec l'URL du tableau de bord Grafana en paramètre et les paramètres from et to.
-> Dans l'exemple ci-dessous, la plage de temps est ``now-1y/y``, ce qui correspond à l'année dernière.
+To generate a PDF with a time range, send a POST request to the /generate-pdf API with the Grafana dashboard URL as a parameter and the from and to parameters.
 
-> Voir plus de détails sur les plages de temps dans la [documentation Grafana](https://grafana.com/docs/grafana/latest/dashboards/use-dashboards/#time-units-and-relative-ranges).
+> In the example below, the time range is ``now-1y/y``, which corresponds to last year.
 
-#### Via cURL
+> See more details on time ranges in the [Grafana documentation](https://grafana.com/docs/grafana/latest/dashboards/use-dashboards/#time-units-and-relative-ranges).
+
+#### Using cURL
 ```bash
 curl \
   -H "Content-Type: application/json" \
   -X POST \
-  -d '{ "url": "http://votre-serveur-grafana/d/your-dashboard-id?orgId=1&kiosk", "from": "now-1y/y", "to": "now-1y/y"}' \
+  -d '{ "url": "http://your-grafana-server/d/your-dashboard-id?orgId=1&kiosk", "from": "now-1y/y", "to": "now-1y/y"}' \
   http://localhost:3000/generate-pdf
 ```
 
-#### Via le fichier shell `generate-pdf.sh`
+#### Using the `generate-pdf.sh` shell script
 ```bash
-docker compose exec server /usr/src/app/generate-pdf.sh GF_DASH_URL 'http://votre-serveur-grafana/d/your-dashboard-id?orgId=1&kiosk' GF_FROM 'now-1y/y' GF_TO 'now-1y/y'
+docker compose exec server /usr/src/app/generate-pdf.sh GF_DASH_URL 'http://your-grafana-server/d/your-dashboard-id?orgId=1&kiosk' GF_FROM 'now-1y/y' GF_TO 'now-1y/y'
 ```
 
-#### Via un bouton HTML injecté dans Grafana
-Le bouton HTML injecté récupère déjà les valeurs de la plage de temps sélectionnée dans Grafana. Vous n'avez pas besoin de les spécifier manuellement.
+#### Using an HTML button injected into Grafana
+The injected HTML button already retrieves the values of the selected time range in Grafana. You do not need to specify them manually.
+
+# Author
+
+- [Arthur M.](https://mondon.pro)
