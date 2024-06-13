@@ -15,20 +15,24 @@ app.use(cors());
 app.use('/output', express.static(path.join(__dirname, 'output')));
 
 app.post('/generate-pdf', (req, res) => {
-  let { url, from, to } = req.body;
+  let { url: requestUrl, from, to } = req.body;
 
-  if (!url) {
+  if (!requestUrl) {
     return res.status(400).send('URL is required');
   }
 
-  if (from) {
-    url += `&from=${from}`;
+  const urlObj = new URL(requestUrl);
+
+  if (from && !urlObj.searchParams.has('from')) {
+    urlObj.searchParams.append('from', from);
   }
-  if (to) {
-    url += `&to=${to}`;
+  if (to && !urlObj.searchParams.has('to')) {
+    urlObj.searchParams.append('to', to);
   }
 
-  const script = `node grafana_pdf.js "${url}" "${GRAFANA_USER}:${GRAFANA_PASSWORD}"`;
+  const finalUrl = urlObj.toString();
+
+  const script = `node grafana_pdf.js "${finalUrl}" "${GRAFANA_USER}:${GRAFANA_PASSWORD}"`;
   console.log(`Executing script: ${script}`);
 
   exec(script, (error, stdout, stderr) => {

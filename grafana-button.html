@@ -48,6 +48,15 @@
                         const from = '${__from}';
                         const to = '${__to}';
 
+                        const urlObj = new URL(url);
+                        if (from) {
+                            urlObj.searchParams.set('from', from);
+                        }
+                        if (to) {
+                            urlObj.searchParams.set('to', to);
+                        }
+                        url = urlObj.toString();
+
                         try {
                             console.log('Requesting PDF generation for URL:', url);
                             let completeUrl = pdfGenerationServerUrl + "/generate-pdf";
