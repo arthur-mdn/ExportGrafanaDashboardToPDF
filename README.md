@@ -83,11 +83,17 @@ The button should now be displayed in the native Grafana share menu.
 
 ### Generating a PDF with a time range
 
-To generate a PDF with a time range, send a POST request to the /generate-pdf API with the Grafana dashboard URL as a parameter and the from and to parameters.
+> In the examples below, the time range is ``now-1y/y``, which corresponds to last year.
 
-> In the example below, the time range is ``now-1y/y``, which corresponds to last year.
+> See more details on supported time ranges in the [Grafana documentation](https://grafana.com/docs/grafana/latest/dashboards/use-dashboards/#time-units-and-relative-ranges).
 
-> See more details on time ranges in the [Grafana documentation](https://grafana.com/docs/grafana/latest/dashboards/use-dashboards/#time-units-and-relative-ranges).
+To generate a PDF with a time range, you can simply add the native Grafana time range parameters to the URL.
+
+```shell
+http://your-grafana-server/d/your-dashboard-id?orgId=1&kiosk&from=now-1y%2Fy&to=now-1y%2Fy
+```
+
+But you can also specify the time range manually by specifying the `from` and `to` parameters in the request.
 
 #### Using cURL
 ```bash
@@ -103,14 +109,14 @@ curl \
 docker compose exec server /usr/src/app/generate-pdf.sh GF_DASH_URL 'http://your-grafana-server/d/your-dashboard-id?orgId=1&kiosk' GF_FROM 'now-1y/y' GF_TO 'now-1y/y'
 ```
 
-#### Using an HTML button injected into Grafana
+#### Using the HTML button injected into Grafana
 The injected HTML button already retrieves the values of the selected time range in Grafana. You do not need to specify them manually.
 
 ## Custom Configuration
 
-### Fetch the dashboard name and the time range from HTML elements
+### Fetch the dashboard name and the time range from HTML elements to be used in the PDF filename
 
-To avoid fetching the dashboard name and the time range from the URL, you can inject the values directly into HTML elements in the Grafana dashboard. The server will then retrieve the values from the HTML elements.
+To avoid fetching the dashboard name and the time range from the URL (that are sometimes not user-friendly), you can extract the values directly from HTML elements in the Grafana dashboard with a better display format.
 
 > in your .env file, set the following variables to true:
 > ```dotenv
