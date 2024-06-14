@@ -138,16 +138,18 @@ To do this, add the following code to the Grafana panel that inject the export b
     <p id="display_actual_date" style="text-transform:capitalize;"></p>
 </div>
 <script>
-    function formatTimestamp(timestamp) {
-        const date = new Date(timestamp);
-        const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-        return date.toLocaleDateString('en-US', options);
-    }
+    (function() {
+        function formatTimestamp(timestamp) {
+            const date = new Date(timestamp);
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            return date.toLocaleDateString('en-US', options);
+        }
 
-    let fromTimestamp = ${__from};
-    let toTimestamp = ${__to};
+        let fromTimestampGrafana = ${__from};
+        let toTimestampGrafana = ${__to};
 
-    document.getElementById("display_actual_date").innerHTML = formatTimestamp(fromTimestamp) + " - " + formatTimestamp(toTimestamp);
+        document.getElementById("display_actual_date").innerHTML = formatTimestamp(fromTimestampGrafana) + " - " + formatTimestamp(toTimestampGrafana);
+    })();
 </script>
 ```
 
