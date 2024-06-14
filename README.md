@@ -153,6 +153,13 @@ To do this, add the following code to the Grafana panel that inject the export b
 </script>
 ```
 
+### Force Kiosk Mode
+By default, `FORCE_KIOSK_MODE` is set to `true`. This means that if the url does not contain the `kiosk` parameter, the server will add it to the URL to ensure that the PDF is generated without any elements overlapping the dashboard content . 
+
+You can disable this behavior by setting the `FORCE_KIOSK_MODE` variable to `false`.
+
+> Disabling this feature would have no effect if the `kiosk` parameter is already present in the URL given to the server.
+
 ## Author
 
 - [Arthur Mondon](https://mondon.pro)
