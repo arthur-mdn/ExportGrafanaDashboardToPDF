@@ -82,7 +82,7 @@ const auth_header = 'Basic ' + Buffer.from(auth_string).toString('base64');
         if (process.env.EXTRACT_DATE_AND_DASHBOARD_NAME_FROM_HTML_PANEL_ELEMENTS === 'true') {
             console.log("Extracting dashboard name and date from the HTML page...");
             dashboardName = await page.evaluate(() => {
-                const dashboardElement = document.querySelector('p');
+                const dashboardElement = document.getElementById('display_actual_dashboard_title');
                 return dashboardElement ? dashboardElement.innerText.trim() : null;
             }) || dashboardName;
 

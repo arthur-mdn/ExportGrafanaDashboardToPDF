@@ -106,6 +106,38 @@ docker compose exec server /usr/src/app/generate-pdf.sh GF_DASH_URL 'http://your
 #### Using an HTML button injected into Grafana
 The injected HTML button already retrieves the values of the selected time range in Grafana. You do not need to specify them manually.
 
+## Custom Configuration
+
+### Fetch the dashboard name and the time range from HTML elements
+
+To avoid fetching the dashboard name and the time range from the URL, you can inject the values directly into HTML elements in the Grafana dashboard. The server will then retrieve the values from the HTML elements.
+
+> in your .env file, set the following variables to true:
+> ```dotenv
+> EXTRACT_DATE_AND_DASHBOARD_NAME_FROM_HTML_PANEL_ELEMENTS=true
+> ```
+
+To do this, add the following code to the Grafana panel that inject the export button:
+
+```html
+<div>
+    <p id="display_actual_dashboard_title">${__dashboard}</p>
+    <p id="display_actual_date" style="text-transform:capitalize;"></p>
+</div>
+<script>
+    function formatTimestamp(timestamp) {
+        const date = new Date(timestamp);
+        const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+        return date.toLocaleDateString('en-US', options);
+    }
+
+    let fromTimestamp = ${__from};
+    let toTimestamp = ${__to};
+
+    document.getElementById("display_actual_date").innerHTML = formatTimestamp(fromTimestamp) + " - " + formatTimestamp(toTimestamp);
+</script>
+```
+
 ## Author
 
 - [Arthur Mondon](https://mondon.pro)
