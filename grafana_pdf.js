@@ -110,7 +110,11 @@ const auth_header = 'Basic ' + Buffer.from(auth_string).toString('base64');
             const from = urlParts.searchParams.get('from');
             const to = urlParts.searchParams.get('to');
             if (from && to) {
-                date = `${new Date(parseInt(from)).toISOString().split('T')[0]}_to_${new Date(parseInt(to)).toISOString().split('T')[0]}`;
+                const fromDate = isNaN(from) ? from.replace(/[^\w\s-]/g, '_') : new Date(parseInt(from)).toISOString().split('T')[0];
+                const toDate = isNaN(to) ? to.replace(/[^\w\s-]/g, '_') : new Date(parseInt(to)).toISOString().split('T')[0];
+                date = `${fromDate}_to_${toDate}`;
+            } else {
+                date = new Date().toISOString().split('T')[0];
             }
             console.log("Dashboard name fetched from URL:", dashboardName);
             console.log("Date fetched from URL:", date);
