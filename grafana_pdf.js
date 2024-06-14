@@ -31,9 +31,15 @@ const auth_header = 'Basic ' + Buffer.from(auth_string).toString('base64');
         }
 
         let finalUrl = url;
-        if (!finalUrl.includes('&kiosk')) {
-            finalUrl += '&kiosk';
+        if(process.env.FORCE_KIOSK_MODE === 'true') {
+            console.log("Checking if kiosk mode is enabled.")
+            if (!finalUrl.includes('&kiosk')) {
+                console.log("Kiosk mode not enabled. Enabling it.")
+                finalUrl += '&kiosk=true';
+            }
+            console.log("Kiosk mode enabled.")
         }
+
 
         console.log("Starting browser...");
         const browser = await puppeteer.launch({

@@ -42,7 +42,7 @@
                         button.setAttribute('disabled', true);
                         let url = window.location.href;
                         if (!url.includes("&kiosk")) {
-                            url += "&kiosk";
+                            url += "&kiosk=true";
                         }
 
                         const from = '${__from}';
