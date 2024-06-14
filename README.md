@@ -125,12 +125,12 @@ For this URL: `http://localhost/d/ID/stats?orgId=1&from=now-1y%2Fy&to=now-1y%2Fy
 
 #### Activation
 
-> in your .env file, set the following variables to true:
-> ```dotenv
-> EXTRACT_DATE_AND_DASHBOARD_NAME_FROM_HTML_PANEL_ELEMENTS=true
-> ```
+To activate this feature, set the following variable to `true` in your `.env` file:
+```dotenv
+EXTRACT_DATE_AND_DASHBOARD_NAME_FROM_HTML_PANEL_ELEMENTS=true
+```
 
-To do this, add the following code to the Grafana panel that inject the export button:
+And then add the following code to the Grafana panel where you want to display the dashboard name and the time range. You can customize the display format by modifying the `formatTimestamp` function in the script below:
 
 ```html
 <div>
@@ -156,7 +156,12 @@ To do this, add the following code to the Grafana panel that inject the export b
 ### Force Kiosk Mode
 By default, `FORCE_KIOSK_MODE` is set to `true`. This means that if the url does not contain the `kiosk` parameter, the server will add it to the URL to ensure that the PDF is generated without any elements overlapping the dashboard content . 
 
-You can disable this behavior by setting the `FORCE_KIOSK_MODE` variable to `false`.
+#### Deactivation
+You can disable this behavior by setting the following variable to `false` in your `.env` file:
+    
+```dotenv
+FORCE_KIOSK_MODE=false
+```
 
 > Disabling this feature would have no effect if the `kiosk` parameter is already present in the URL given to the server.
 
