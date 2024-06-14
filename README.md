@@ -118,6 +118,13 @@ The injected HTML button already retrieves the values of the selected time range
 
 To avoid fetching the dashboard name and the time range from the URL (that are sometimes not user-friendly), you can extract the values directly from HTML elements in the Grafana dashboard with a better display format.
 
+#### Example
+For this URL: `http://localhost/d/ID/stats?orgId=1&from=now-1y%2Fy&to=now-1y%2Fy`
+- The initial PDF filename will be: `stats_now-1y_y_to_now-1y_y.pdf`
+- With the custom configuration, the PDF filename could be: `Stats_Sunday_January_1_2023_-_Sunday_December_31_2023.pdf`
+
+#### Activation
+
 > in your .env file, set the following variables to true:
 > ```dotenv
 > EXTRACT_DATE_AND_DASHBOARD_NAME_FROM_HTML_PANEL_ELEMENTS=true
