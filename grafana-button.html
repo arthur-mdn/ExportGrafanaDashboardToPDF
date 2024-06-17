@@ -117,7 +117,6 @@
                     div.appendChild(button);
                     shareModalContent.appendChild(div);
 
-                    // check server status
                     let completeCheckUrl = pdfGenerationServerUrl + "/check-status";
                     if (pdfGenerationServerUrl.endsWith('/')) {
                         completeCheckUrl = pdfGenerationServerUrl + "check-status";
@@ -149,7 +148,7 @@
 </script>
 
 <style>
-    .GF_EXPORT_marker_to_enable_html_injection_in_this_panel {
+    .GF_EXPORT_marker {
         display: none;
     }
 
