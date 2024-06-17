@@ -12,6 +12,7 @@
                     let div = document.createElement('div');
                     div.classList.add('GF_EXPORT_export-pdf-container');
                     let button = document.createElement('button');
+                    button.setAttribute('disabled', true)
                     button.classList.add('GF_EXPORT_btn-export-pdf');
                     button.innerHTML = `
                         <svg id="Calque_2" data-name="Calque 2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 177.41 177.78">
@@ -108,31 +109,33 @@
                     div.appendChild(errorDiv);
                     div.appendChild(button);
                     shareModalContent.appendChild(div);
-                }
-                // check server status
-                let completeCheckUrl = pdfGenerationServerUrl + "/check-status";
-                if (pdfGenerationServerUrl.endsWith('/')) {
-                    completeCheckUrl = pdfGenerationServerUrl + "check-status";
-                }
-                fetch(completeCheckUrl)
-                    .then(response => {
-                        if (response.ok) {
-                            console.log('PDF generation server is running.');
-                        } else {
-                            console.error('PDF generation server is not running.');
+
+                    // check server status
+                    let completeCheckUrl = pdfGenerationServerUrl + "/check-status";
+                    if (pdfGenerationServerUrl.endsWith('/')) {
+                        completeCheckUrl = pdfGenerationServerUrl + "check-status";
+                    }
+                    fetch(completeCheckUrl)
+                        .then(response => {
+                            if (response.ok) {
+                                console.log('PDF generation server is running.');
+                                document.querySelector('.GF_EXPORT_btn-export-pdf').removeAttribute('disabled');
+                            } else {
+                                console.error('PDF generation server is not running.');
+                                document.querySelector('.GF_EXPORT_btn-export-pdf').setAttribute('disabled', true);
+                                document.querySelector('.GF_EXPORT_btn-export-pdf').classList.add('GF_EXPORT_no-server');
+                                document.querySelector('.GF_EXPORT_error').style.display = 'block';
+                                document.querySelector('.GF_EXPORT_error').innerText = 'PDF generation server is not running.';
+                            }
+                        })
+                        .catch(error => {
+                            console.error('PDF generation server is not running.', error);
                             document.querySelector('.GF_EXPORT_btn-export-pdf').setAttribute('disabled', true);
                             document.querySelector('.GF_EXPORT_btn-export-pdf').classList.add('GF_EXPORT_no-server');
                             document.querySelector('.GF_EXPORT_error').style.display = 'block';
                             document.querySelector('.GF_EXPORT_error').innerText = 'PDF generation server is not running.';
-                        }
-                    })
-                    .catch(error => {
-                        console.error('PDF generation server is not running.', error);
-                        document.querySelector('.GF_EXPORT_btn-export-pdf').setAttribute('disabled', true);
-                        document.querySelector('.GF_EXPORT_btn-export-pdf').classList.add('GF_EXPORT_no-server');
-                        document.querySelector('.GF_EXPORT_error').style.display = 'block';
-                        document.querySelector('.GF_EXPORT_error').innerText = 'PDF generation server is not running.';
-                    });
+                        });
+                }
             }
         }
     }
