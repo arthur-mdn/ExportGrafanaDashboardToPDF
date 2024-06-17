@@ -8,10 +8,11 @@
         document.onclick = function () {
             let shareModalContent = document.querySelector('div[class*="shareModalContent"]');
             if (shareModalContent) {
-                if (!shareModalContent.querySelector('.export-pdf-container')) {
+                if (!shareModalContent.querySelector('.GF_EXPORT_export-pdf-container')) {
                     let div = document.createElement('div');
-                    div.classList.add('export-pdf-container');
+                    div.classList.add('GF_EXPORT_export-pdf-container');
                     let button = document.createElement('button');
+                    button.classList.add('GF_EXPORT_btn-export-pdf');
                     button.innerHTML = `
                         <svg id="Calque_2" data-name="Calque 2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 177.41 177.78">
                             <defs>
@@ -34,11 +35,11 @@
                                 </g>
                             </g>
                         </svg>
-                        <div class="loader"></div>
+                        <div class="GF_EXPORT_loader"></div>
                         <span>Export to PDF</span>
                     `;
                     button.onclick = async function () {
-                        button.classList.add('waiting');
+                        button.classList.add('GF_EXPORT_waiting');
                         button.setAttribute('disabled', true);
                         let url = window.location.href;
                         if (!url.includes("&kiosk")) {
@@ -70,7 +71,7 @@
                                 headers: {
                                     'Content-Type': 'application/json'
                                 },
-                                body: JSON.stringify({url: url, from: from, to: to})
+                                body: JSON.stringify({url: url})
                             });
 
                             if (response.ok) {
@@ -96,21 +97,56 @@
                                 alert('Error generating PDF. Please check the console for more details.');
                             }
                         } finally {
-                            button.classList.remove('waiting');
+                            button.classList.remove('GF_EXPORT_waiting');
                             button.removeAttribute('disabled');
                         }
                     };
 
+                    let errorDiv = document.createElement('div');
+                    errorDiv.classList.add('GF_EXPORT_error');
+                    errorDiv.style.display = 'none';
+                    div.appendChild(errorDiv);
                     div.appendChild(button);
                     shareModalContent.appendChild(div);
                 }
+                // check server status
+                let completeCheckUrl = pdfGenerationServerUrl + "/check-status";
+                if (pdfGenerationServerUrl.endsWith('/')) {
+                    completeCheckUrl = pdfGenerationServerUrl + "check-status";
+                }
+                fetch(completeCheckUrl)
+                    .then(response => {
+                        if (response.ok) {
+                            console.log('PDF generation server is running.');
+                        } else {
+                            console.error('PDF generation server is not running.');
+                            document.querySelector('.GF_EXPORT_btn-export-pdf').setAttribute('disabled', true);
+                            document.querySelector('.GF_EXPORT_btn-export-pdf').classList.add('GF_EXPORT_no-server');
+                            document.querySelector('.GF_EXPORT_error').style.display = 'block';
+                            document.querySelector('.GF_EXPORT_error').innerText = 'PDF generation server is not running.';
+                        }
+                    })
+                    .catch(error => {
+                        console.error('PDF generation server is not running.', error);
+                        document.querySelector('.GF_EXPORT_btn-export-pdf').setAttribute('disabled', true);
+                        document.querySelector('.GF_EXPORT_btn-export-pdf').classList.add('GF_EXPORT_no-server');
+                        document.querySelector('.GF_EXPORT_error').style.display = 'block';
+                        document.querySelector('.GF_EXPORT_error').innerText = 'PDF generation server is not running.';
+                    });
             }
         }
     }
 </script>
 
 <style>
-    .export-pdf-container button {
+    .GF_EXPORT_export-pdf-container {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        align-items: flex-start;
+    }
+
+    .GF_EXPORT_export-pdf-container button {
         display: inline-flex;
         gap: 0.5rem;
         -webkit-box-align: center;
@@ -130,14 +166,14 @@
         transition: background-color 250ms cubic-bezier(0.4, 0, 0.2, 1) 0ms, box-shadow 250ms cubic-bezier(0.4, 0, 0.2, 1) 0ms, border-color 250ms cubic-bezier(0.4, 0, 0.2, 1) 0ms, color 250ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;
     }
 
-    .export-pdf-container button:hover {
+    .GF_EXPORT_export-pdf-container button:hover {
         background: rgb(90, 134, 222);
         color: rgb(255, 255, 255);
         box-shadow: rgba(1, 4, 9, 0.75) 0px 1px 2px;
         border-color: transparent;
     }
 
-    .export-pdf-container button[disabled] {
+    .GF_EXPORT_export-pdf-container button[disabled] {
         cursor: not-allowed;
         box-shadow: none;
         color: rgba(204, 204, 220, 0.6);
@@ -146,27 +182,42 @@
         border: 1px solid transparent;
     }
 
-    .export-pdf-container button[disabled] svg {
+    .GF_EXPORT_export-pdf-container button[disabled] svg {
         opacity: 0.6;
     }
 
-    .export-pdf-container button svg {
+    .GF_EXPORT_export-pdf-container button svg {
         width: 1rem
     }
 
-    .loader {
+    .GF_EXPORT_loader {
         display: none;
     }
 
-    .export-pdf-container button[disabled] .loader {
+    .GF_EXPORT_export-pdf-container button[disabled] .GF_EXPORT_loader {
         display: inline-block;
     }
 
-    .export-pdf-container button[disabled] svg {
+    .GF_EXPORT_export-pdf-container button[disabled].GF_EXPORT_no-server .GF_EXPORT_loader {
         display: none;
     }
 
-    .loader {
+    .GF_EXPORT_error {
+        background-color: #860000;
+        border-left: 2px solid red;
+        padding: 0.5rem 1rem;
+        width: fit-content;
+    }
+
+    .GF_EXPORT_export-pdf-container button[disabled] svg {
+        display: none;
+    }
+
+    .GF_EXPORT_export-pdf-container button[disabled].GF_EXPORT_no-server svg {
+        display: inline-block;
+    }
+
+    .GF_EXPORT_loader {
         transform: translate(-50%, -50%);
         border: 2px solid #717171;
         border-radius: 50%;

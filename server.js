@@ -14,6 +14,9 @@ app.use(express.json());
 app.use(cors());
 app.use('/output', express.static(path.join(__dirname, 'output')));
 
+app.get('/check-status', (req, res) => {
+  res.send('Server is running');
+});
 app.post('/generate-pdf', (req, res) => {
   let { url: requestUrl, from, to } = req.body;
 
