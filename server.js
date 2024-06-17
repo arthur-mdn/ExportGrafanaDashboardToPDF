@@ -40,7 +40,7 @@ app.post('/generate-pdf', (req, res) => {
   script.on('message', (message) => {
     if (message.success) {
       const pdfPath = message.path;
-      const pdfUrl = `${process.env.SERVER_URL}/output/${path.basename(pdfPath)}`;
+      const pdfUrl = `${req.protocol}://${req.get('host')}/output/${path.basename(pdfPath)}`;
       res.json({ pdfUrl });
     } else {
       res.status(500).send(`Error generating PDF: ${message.error}`);

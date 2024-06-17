@@ -35,11 +35,9 @@ Modify the values according to your configuration.
 ```dotenv
 GRAFANA_USER=pdf_export
 GRAFANA_PASSWORD=pdf_export
-SERVER_URL=http://localhost:3000
 ```
 
-`GRAFANA_USER` and `GRAFANA_PASSWORD` are the credentials used to authenticate to the Grafana server.
-`SERVER_URL` is the URL of the server.
+`GRAFANA_USER` and `GRAFANA_PASSWORD` are the credentials used to authenticate to the Grafana instance.
 
 ## Usage
 To start the project, run the following command:
