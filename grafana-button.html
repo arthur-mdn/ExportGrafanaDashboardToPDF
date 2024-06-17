@@ -1,3 +1,7 @@
+<div id="GF_EXPORT_marker">
+    /* This is a marker to enable HTML injection in this panel */
+</div>
+
 <script>
     /* Edit the following variables to enable/disable PDF generation and set the server URL */
     const pdfGeneration = true;
@@ -6,6 +10,9 @@
 
     if (pdfGeneration && pdfGenerationServerUrl) {
         document.onclick = function () {
+            if (!document.getElementById('GF_EXPORT_marker')) {
+                return;
+            }
             let shareModalContent = document.querySelector('div[class*="shareModalContent"]');
             if (shareModalContent) {
                 if (!shareModalContent.querySelector('.GF_EXPORT_export-pdf-container')) {
@@ -142,6 +149,10 @@
 </script>
 
 <style>
+    .GF_EXPORT_marker_to_enable_html_injection_in_this_panel {
+        display: none;
+    }
+
     .GF_EXPORT_export-pdf-container {
         display: flex;
         flex-direction: column;
