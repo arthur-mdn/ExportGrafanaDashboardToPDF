@@ -62,7 +62,7 @@ curl \
 
 #### Using the `generate-pdf.sh` shell script
 ```bash
-docker compose exec server /usr/src/app/generate-pdf.sh GF_DASH_URL 'http://your-grafana-server/d/your-dashboard-id?orgId=1&kiosk'
+docker compose exec grafana-export-to-pdf /usr/src/app/generate-pdf.sh GF_DASH_URL 'http://your-grafana-server/d/your-dashboard-id?orgId=1&kiosk'
 ```
 
 #### Using an HTML button injected into Grafana

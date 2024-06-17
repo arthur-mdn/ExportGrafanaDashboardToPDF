@@ -1,6 +1,6 @@
 version: '3'
 services:
-  server:
+  grafana-export-to-pdf:
     build: .
     ports:
       - "3000:3000"
