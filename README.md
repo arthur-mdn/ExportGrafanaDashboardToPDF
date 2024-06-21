@@ -112,7 +112,9 @@ docker compose exec server /usr/src/app/generate-pdf.sh GF_DASH_URL 'http://your
 ```
 
 #### Using the HTML button injected into Grafana
-The injected HTML button already retrieves the values of the selected time range in Grafana. You do not need to specify them manually.
+The injected HTML button already retrieves the values of the selected time range in Grafana. You do not need to specify them manually. It also retrieves the theme selected from the share panel.
+
+![Share Panel Values](https://github.com/arthur-mdn/grafana-export-to-pdf/blob/main/illustrations/share-modal-values.png)
 
 ## Custom Configuration
 
@@ -166,6 +168,16 @@ FORCE_KIOSK_MODE=false
 ```
 
 > Disabling this feature would have no effect if the `kiosk` parameter is already present in the URL given to the server.
+
+### Export a single panel
+
+By default, the server exports the entire dashboard. If you want to export a single panel, you can add the `viewPanel` parameter to the URL.
+
+> By using the injected button, you can simply click the share button on the panel you want to export, and then you will find the Export to PDF button.
+> 
+> ![Export Single Panel](https://github.com/arthur-mdn/grafana-export-to-pdf/blob/main/illustrations/share-single-panel.png)
+
+
 
 ## Author
 
