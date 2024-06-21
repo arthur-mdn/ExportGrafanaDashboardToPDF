@@ -15,6 +15,7 @@ const auth_header = 'Basic ' + Buffer.from(auth_string).toString('base64');
 
 (async () => {
     try {
+        console.log("URL provided:", url);
         console.log("Checking URL accessibility...");
         const response = await fetch(url, {
             method: 'GET',
@@ -52,7 +53,7 @@ const auth_header = 'Basic ' + Buffer.from(auth_string).toString('base64');
         console.log("Browser started...");
 
         await page.setExtraHTTPHeaders({'Authorization': auth_header});
-        await page.setDefaultNavigationTimeout(120000);
+        await page.setDefaultNavigationTimeout(process.env.PUPPETEER_NAVIGATION_TIMEOUT || 120000);
 
         await page.setViewport({
             width: width_px,
@@ -160,6 +161,7 @@ const auth_header = 'Basic ' + Buffer.from(auth_string).toString('base64');
             path: outfile,
             width: width_px + 'px',
             height: totalHeight + 'px',
+            printBackground: true,
             scale: 1,
             displayHeaderFooter: false,
             margin: {top: 0, right: 0, bottom: 0, left: 0}
