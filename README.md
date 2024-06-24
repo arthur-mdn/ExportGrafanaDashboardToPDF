@@ -129,6 +129,7 @@ By using the HTML button injected into Grafana, you can simply click the share b
 
 ![Export Single Panel](https://github.com/arthur-mdn/grafana-export-to-pdf/blob/main/illustrations/share-single-panel.png)
 
+> The script will try to extract the panel title and use it in the PDF filename.
 
 ## Custom Configuration
 

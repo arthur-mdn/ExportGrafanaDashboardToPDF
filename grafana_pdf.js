@@ -99,6 +99,10 @@ const auth_header = 'Basic ' + Buffer.from(auth_string).toString('base64');
                     console.log("Multiple panels detected. Unable to fetch a unique panel name. Using default value.")
                     return null;
                 }
+                if (scrapedPanelName[0] && scrapedPanelName[0].innerText.trim() === '') {
+                    console.log("Empty panel name detected. Using default value.")
+                    return null;
+                }
                 return scrapedPanelName[0] ? scrapedPanelName[0].innerText.trim() : null;
             });
 
@@ -153,6 +157,10 @@ const auth_header = 'Basic ' + Buffer.from(auth_string).toString('base64');
                 console.log(scrapedPanelName)
                 if (scrapedPanelName.length > 1) { // Multiple panels detected
                     console.log("Multiple panels detected. Unable to fetch a unique panel name. Using default value.")
+                    return null;
+                }
+                if (scrapedPanelName[0] && scrapedPanelName[0].innerText.trim() === '') {
+                    console.log("Empty panel name detected. Using default value.")
                     return null;
                 }
                 return scrapedPanelName[0] ? scrapedPanelName[0].innerText.trim() : null;
