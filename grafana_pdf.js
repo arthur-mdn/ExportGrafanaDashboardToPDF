@@ -79,29 +79,33 @@ const auth_header = 'Basic ' + Buffer.from(auth_string).toString('base64');
 
         let dashboardName = 'output_grafana';
         let date = new Date().toISOString().split('T')[0];
+        let addRandomStr = false;
 
         if (process.env.EXTRACT_DATE_AND_DASHBOARD_NAME_FROM_HTML_PANEL_ELEMENTS === 'true') {
             console.log("Extracting dashboard name and date from the HTML page...");
-            dashboardName = await page.evaluate(() => {
+            let scrapedDashboardName = await page.evaluate(() => {
                 const dashboardElement = document.getElementById('display_actual_dashboard_title');
                 return dashboardElement ? dashboardElement.innerText.trim() : null;
-            }) || dashboardName;
+            });
 
-            date = await page.evaluate(() => {
+            let scrapedDate = await page.evaluate(() => {
                 const dateElement = document.getElementById('display_actual_date');
                 return dateElement ? dateElement.innerText.trim() : null;
-            }) || date;
+            });
 
-            if (!dashboardName) {
+            if (!scrapedDashboardName) {
                 console.log("Dashboard name not found. Using default value.");
+                addRandomStr = true;
             } else {
-                console.log("Dashboard name fetched:", dashboardName);
+                console.log("Dashboard name fetched:", scrapedDashboardName);
+                dashboardName = scrapedDashboardName;
             }
 
-            if (!date) {
+            if (!scrapedDate) {
                 console.log("Date not found. Using default value.");
             } else {
                 console.log("Date fetched:", date);
+                date = scrapedDate;
             }
         } else {
             console.log("Extracting dashboard name and date from the URL...");
@@ -121,7 +125,7 @@ const auth_header = 'Basic ' + Buffer.from(auth_string).toString('base64');
             console.log("Date fetched from URL:", date);
         }
 
-        outfile = `./output/${dashboardName.replace(/\s+/g, '_')}_${date.replace(/\s+/g, '_')}.pdf`;
+        outfile = `./output/${dashboardName.replace(/\s+/g, '_')}_${date.replace(/\s+/g, '_')}${addRandomStr ? '_' + Math.random().toString(36).substring(7) : ''}.pdf`;
 
         const totalHeight = await page.evaluate(() => {
             const scrollableSection = document.querySelector('.scrollbar-view');
