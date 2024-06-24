@@ -93,7 +93,20 @@ const auth_header = 'Basic ' + Buffer.from(auth_string).toString('base64');
                 return dateElement ? dateElement.innerText.trim() : null;
             });
 
-            if (!scrapedDashboardName) {
+            let scrapedPanelName = await page.evaluate(() => {
+                const scrapedPanelName = document.querySelectorAll('h6');
+                if (scrapedPanelName.length > 1) { // Multiple panels detected
+                    console.log("Multiple panels detected. Unable to fetch a unique panel name. Using default value.")
+                    return null;
+                }
+                return scrapedPanelName[0] ? scrapedPanelName[0].innerText.trim() : null;
+            });
+
+            if (scrapedPanelName && !scrapedDashboardName) {
+                console.log("Panel name fetched:", scrapedPanelName);
+                dashboardName = scrapedPanelName;
+                addRandomStr = false;
+            } else if (!scrapedDashboardName) {
                 console.log("Dashboard name not found. Using default value.");
                 addRandomStr = true;
             } else {
@@ -101,7 +114,19 @@ const auth_header = 'Basic ' + Buffer.from(auth_string).toString('base64');
                 dashboardName = scrapedDashboardName;
             }
 
-            if (!scrapedDate) {
+            if (scrapedPanelName && !scrapedDate) {
+                const urlParts = new URL(url);
+                const from = urlParts.searchParams.get('from');
+                const to = urlParts.searchParams.get('to');
+                if (from && to) {
+                    const fromDate = isNaN(from) ? from.replace(/[^\w\s-]/g, '_') : new Date(parseInt(from)).toISOString().split('T')[0];
+                    const toDate = isNaN(to) ? to.replace(/[^\w\s-]/g, '_') : new Date(parseInt(to)).toISOString().split('T')[0];
+                    date = `${fromDate}_to_${toDate}`;
+                } else {
+                    // using date in URL
+                    date = new Date().toISOString().split('T')[0];
+                }
+            } else if (!scrapedDate) {
                 console.log("Date not found. Using default value.");
             } else {
                 console.log("Date fetched:", date);
@@ -122,6 +147,23 @@ const auth_header = 'Basic ' + Buffer.from(auth_string).toString('base64');
                 date = new Date().toISOString().split('T')[0];
             }
             console.log("Dashboard name fetched from URL:", dashboardName);
+            console.log("Trying to fetch the panel name from the page...")
+            let scrapedPanelName = await page.evaluate(() => {
+                const scrapedPanelName = document.querySelectorAll('h6');
+                console.log(scrapedPanelName)
+                if (scrapedPanelName.length > 1) { // Multiple panels detected
+                    console.log("Multiple panels detected. Unable to fetch a unique panel name. Using default value.")
+                    return null;
+                }
+                return scrapedPanelName[0] ? scrapedPanelName[0].innerText.trim() : null;
+            });
+
+            if (scrapedPanelName) {
+                console.log("Panel name fetched:", scrapedPanelName);
+                dashboardName = scrapedPanelName;
+                addRandomStr = false;
+            }
+
             console.log("Date fetched from URL:", date);
         }
 
