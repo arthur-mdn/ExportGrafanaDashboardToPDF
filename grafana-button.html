@@ -55,6 +55,7 @@
                     button.onclick = async function () {
                         button.classList.add('GF_EXPORT_waiting');
                         button.setAttribute('disabled', true);
+                        document.getElementById('GF_EXPORT_marker').setAttribute('data-gf-export-waiting', 'true')
                         let url = linkUrlInput.value || window.location.href;
 
                         const urlObj = new URL(url);
@@ -101,8 +102,10 @@
                                 checkStatus();
                             }
                         } finally {
-                            button.classList.remove('GF_EXPORT_waiting');
-                            button.removeAttribute('disabled');
+                            console.log('PDF generation request completed.')
+                            document.getElementById('GF_EXPORT_marker').removeAttribute('data-gf-export-waiting');
+                            document.querySelector('.GF_EXPORT_btn-export-pdf').classList.remove('GF_EXPORT_waiting');
+                            document.querySelector('.GF_EXPORT_btn-export-pdf').removeAttribute('disabled');
                         }
                     };
 
@@ -113,7 +116,12 @@
                     div.appendChild(button);
                     shareModalContent.appendChild(div);
 
-                    checkStatus();
+                    if (document.getElementById('GF_EXPORT_marker').getAttribute('data-gf-export-waiting') === 'true'){
+                        document.querySelector('.GF_EXPORT_btn-export-pdf').classList.add('GF_EXPORT_waiting');
+                        document.querySelector('.GF_EXPORT_btn-export-pdf').setAttribute('disabled', true);
+                    } else {
+                        checkStatus();
+                    }
                 } else if ( !shareModalContent.querySelector('.GF_EXPORT_btn-export-pdf') || !shareModalContent.querySelector('.GF_EXPORT_btn-export-pdf').classList.contains('GF_EXPORT_waiting')) {
                     // If no export process is running, re-listen to the shareShortenUrl checkbox
                     if (shareShortenUrl) {
