@@ -95,8 +95,10 @@
                             console.error('Fetch error:', error);
                             if (error.message.includes('Failed to fetch')) {
                                 alert('Unable to contact the PDF generation server. Are you sure the Docker is running? Check its status and the configured URL.');
+                                checkStatus();
                             } else {
                                 alert('Error generating PDF. Please check the console for more details.');
+                                checkStatus();
                             }
                         } finally {
                             button.classList.remove('GF_EXPORT_waiting');
@@ -111,30 +113,7 @@
                     div.appendChild(button);
                     shareModalContent.appendChild(div);
 
-                    let completeCheckUrl = pdfGenerationServerUrl + "/check-status";
-                    if (pdfGenerationServerUrl.endsWith('/')) {
-                        completeCheckUrl = pdfGenerationServerUrl + "check-status";
-                    }
-                    fetch(completeCheckUrl)
-                        .then(response => {
-                            if (response.ok) {
-                                console.log('PDF generation server is running.');
-                                document.querySelector('.GF_EXPORT_btn-export-pdf').removeAttribute('disabled');
-                            } else {
-                                console.error('PDF generation server is not running.');
-                                document.querySelector('.GF_EXPORT_btn-export-pdf').setAttribute('disabled', true);
-                                document.querySelector('.GF_EXPORT_btn-export-pdf').classList.add('GF_EXPORT_no-server');
-                                document.querySelector('.GF_EXPORT_error').style.display = 'block';
-                                document.querySelector('.GF_EXPORT_error').innerText = 'PDF generation server is not running.';
-                            }
-                        })
-                        .catch(error => {
-                            console.error('PDF generation server is not running.', error);
-                            document.querySelector('.GF_EXPORT_btn-export-pdf').setAttribute('disabled', true);
-                            document.querySelector('.GF_EXPORT_btn-export-pdf').classList.add('GF_EXPORT_no-server');
-                            document.querySelector('.GF_EXPORT_error').style.display = 'block';
-                            document.querySelector('.GF_EXPORT_error').innerText = 'PDF generation server is not running.';
-                        });
+                    checkStatus();
                 } else if ( !shareModalContent.querySelector('.GF_EXPORT_btn-export-pdf') || !shareModalContent.querySelector('.GF_EXPORT_btn-export-pdf').classList.contains('GF_EXPORT_waiting')) {
                     // If no export process is running, re-listen to the shareShortenUrl checkbox
                     if (shareShortenUrl) {
@@ -166,6 +145,33 @@
                 }
             }
         }
+    }
+
+    function checkStatus() {
+        let completeCheckUrl = pdfGenerationServerUrl + "/check-status";
+        if (pdfGenerationServerUrl.endsWith('/')) {
+            completeCheckUrl = pdfGenerationServerUrl + "check-status";
+        }
+        fetch(completeCheckUrl)
+            .then(response => {
+                if (response.ok) {
+                    console.log('PDF generation server is running.');
+                    document.querySelector('.GF_EXPORT_btn-export-pdf').removeAttribute('disabled');
+                } else {
+                    console.error('PDF generation server is not running.');
+                    document.querySelector('.GF_EXPORT_btn-export-pdf').setAttribute('disabled', true);
+                    document.querySelector('.GF_EXPORT_btn-export-pdf').classList.add('GF_EXPORT_no-server');
+                    document.querySelector('.GF_EXPORT_error').style.display = 'block';
+                    document.querySelector('.GF_EXPORT_error').innerText = 'PDF generation server is not running.';
+                }
+            })
+            .catch(error => {
+                console.error('PDF generation server is not running.', error);
+                document.querySelector('.GF_EXPORT_btn-export-pdf').setAttribute('disabled', true);
+                document.querySelector('.GF_EXPORT_btn-export-pdf').classList.add('GF_EXPORT_no-server');
+                document.querySelector('.GF_EXPORT_error').style.display = 'block';
+                document.querySelector('.GF_EXPORT_error').innerText = 'PDF generation server is not running.';
+            });
     }
 </script>
 
