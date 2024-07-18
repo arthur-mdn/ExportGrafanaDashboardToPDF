@@ -13,7 +13,7 @@
             if (!document.getElementById('GF_EXPORT_marker')) {
                 return;
             }
-            let shareModalContent = document.querySelector('div[class*="shareModalContent"]');
+            let shareModalContent = document.querySelector('div[class*="shareModalContent"], div[role="dialog"]:has(button[aria-label="Tab Link"])');
             let linkUrlInput = document.querySelector('#link-url-input');
             let shareShortenUrl = document.querySelector('#share-shorten-url');
             let linkToGrafanaImageRenderer = document.querySelector('a[href="https://grafana.com/grafana/plugins/grafana-image-renderer"]');
@@ -193,6 +193,7 @@
         flex-direction: column;
         gap: 1rem;
         align-items: flex-start;
+        padding: 0 24px 24px;
     }
 
     .GF_EXPORT_export-pdf-container button {

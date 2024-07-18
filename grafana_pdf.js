@@ -177,6 +177,15 @@ const auth_header = 'Basic ' + Buffer.from(auth_string).toString('base64');
 
         outfile = `./output/${dashboardName.replace(/\s+/g, '_')}_${date.replace(/\s+/g, '_')}${addRandomStr ? '_' + Math.random().toString(36).substring(7) : ''}.pdf`;
 
+        const loginPageDetected = await page.evaluate(() => {
+            const resetPasswordButton = document.querySelector('a[href*="reset-email"]');
+            return !!resetPasswordButton;
+        })
+
+        if (loginPageDetected) {
+            throw new Error("Login page detected. Check your credentials.");
+        }
+
         const totalHeight = await page.evaluate(() => {
             const scrollableSection = document.querySelector('.scrollbar-view');
             return scrollableSection ? scrollableSection.firstElementChild.scrollHeight : null;
