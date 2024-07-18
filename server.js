@@ -10,6 +10,11 @@ const GRAFANA_PASSWORD = process.env.GRAFANA_PASSWORD;
 const app = express();
 const port = 3000;
 
+if (!GRAFANA_USER || !GRAFANA_PASSWORD) {
+    console.error('.env file do not seems to be found or missing required fields. Please check README.md for more information. ');
+    process.exit(1);
+}
+
 app.use(express.json());
 app.use(cors());
 app.use('/output', express.static(path.join(__dirname, 'output')));
