@@ -186,6 +186,19 @@ const auth_header = 'Basic ' + Buffer.from(auth_string).toString('base64');
             throw new Error("Login page detected. Check your credentials.");
         }
 
+        if(process.env.DEBUG_MODE === 'true') {
+            const documentHTML = await page.evaluate(() => {
+                return document.querySelector("*").outerHTML;
+            });
+            if (!fs.existsSync('./debug')) {
+                fs.mkdirSync('./debug');
+            }
+            const filename = `./debug/debug_${dashboardName.replace(/\s+/g, '_')}_${date.replace(/\s+/g, '_')}${'_' + Math.random().toString(36).substring(7)}.html`;
+            fs.writeFileSync(filename, documentHTML);
+            console.log("Debug HTML file saved at:", filename);
+
+        }
+
         const totalHeight = await page.evaluate(() => {
             const scrollableSection = document.querySelector('.scrollbar-view');
             return scrollableSection ? scrollableSection.firstElementChild.scrollHeight : null;
