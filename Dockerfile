@@ -1,4 +1,4 @@
-FROM node:16-slim
+FROM node:latest
 
 WORKDIR /usr/src/app
 
@@ -21,6 +21,8 @@ COPY generate-pdf.sh ./
 
 ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
 
-EXPOSE 3000
+# Default port 3001 if not found in .env
+ARG EXPORT_SERVER_PORT=3001
+EXPOSE ${EXPORT_SERVER_PORT}
 
 CMD ["node", "server.js"]

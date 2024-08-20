@@ -54,7 +54,7 @@ fi
 JSON_PAYLOAD="${JSON_PAYLOAD}}"
 
 # Send the HTTP POST request to the Node.js server to generate the PDF
-RESPONSE=$(curl -s -X POST http://localhost:3000/generate-pdf -H "Content-Type: application/json" -d "$JSON_PAYLOAD")
+RESPONSE=$(curl -s -X POST http://localhost:3001/generate-pdf -H "Content-Type: application/json" -d "$JSON_PAYLOAD")
 
 # Check if the response is valid JSON
 if echo "$RESPONSE" | jq . >/dev/null 2>&1; then

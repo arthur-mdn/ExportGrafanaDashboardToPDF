@@ -45,7 +45,7 @@ To start the project, run the following command:
 ```shell
 docker compose up -d --build
 ```
-The server will be accessible on port 3000.
+The server will be accessible on port 3001.
 
 ### Generating a PDF
 To generate a PDF, send a POST request to the /generate-pdf API with the Grafana dashboard URL as a parameter.
@@ -57,7 +57,7 @@ curl \
   -H "Content-Type: application/json" \
   -X POST \
   -d '{ "url": "http://your-grafana-server/d/your-dashboard-id?orgId=1&kiosk"}' \
-  http://localhost:3000/generate-pdf
+  http://localhost:3001/generate-pdf
 ```
 
 #### Using the `generate-pdf.sh` shell script
@@ -78,7 +78,7 @@ Make sure to modify the server URL if necessary. You can easily deactivate the b
 
 ```javascript
 const pdfGeneration = true;
-const pdfGenerationServerUrl = 'http://localhost:3000/';
+const pdfGenerationServerUrl = 'http://localhost:3001/';
 ```
 
 The button should now be displayed in the native Grafana share menu.
@@ -103,7 +103,7 @@ curl \
   -H "Content-Type: application/json" \
   -X POST \
   -d '{ "url": "http://your-grafana-server/d/your-dashboard-id?orgId=1&kiosk", "from": "now-1y/y", "to": "now-1y/y"}' \
-  http://localhost:3000/generate-pdf
+  http://localhost:3001/generate-pdf
 ```
 
 #### Using the `generate-pdf.sh` shell script
