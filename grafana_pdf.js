@@ -10,7 +10,9 @@ const url = process.argv[2];
 const auth_string = process.argv[3];
 let outfile = process.argv[4];
 
-const width_px = 1200;
+const width_px = parseInt(process.env.PDF_WIDTH_PX, 10) || 1200;
+console.log("PDF width set to:", width_px);
+
 const auth_header = 'Basic ' + Buffer.from(auth_string).toString('base64');
 
 (async () => {
