@@ -13,7 +13,7 @@
             if (!document.getElementById('GF_EXPORT_marker')) {
                 return;
             }
-            let shareModalContent = document.querySelector('div[class*="shareModalContent"], div[role="dialog"]:has(button[aria-label="Tab Link"])');
+            let shareModalContent = document.querySelector('div[class*="shareModalContainer"]:has(a[aria-label="Tab Link"]), div[role="dialog"]:has(button[data-testid*="Tab Link"])');
             let linkUrlInput = document.querySelector('#link-url-input');
             let shareShortenUrl = document.querySelector('#share-shorten-url');
             let linkToGrafanaImageRenderer = document.querySelector('a[href="https://grafana.com/grafana/plugins/grafana-image-renderer"]');
