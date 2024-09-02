@@ -112,6 +112,9 @@
                     let errorDiv = document.createElement('div');
                     errorDiv.classList.add('GF_EXPORT_error');
                     errorDiv.style.display = 'none';
+                    let label = document.createElement('label');
+                    label.innerHTML = 'Export to PDF';
+                    div.appendChild(label);
                     div.appendChild(errorDiv);
                     div.appendChild(button);
                     shareModalContent.appendChild(div);
@@ -122,28 +125,39 @@
                     } else {
                         checkStatus();
                     }
-                } else if ( !shareModalContent.querySelector('.GF_EXPORT_btn-export-pdf') || !shareModalContent.querySelector('.GF_EXPORT_btn-export-pdf').classList.contains('GF_EXPORT_waiting')) {
+                } else if ( !shareModalContent.querySelector('.GF_EXPORT_btn-export-pdf') || (!shareModalContent.querySelector('.GF_EXPORT_btn-export-pdf').classList.contains('GF_EXPORT_waiting') && !shareModalContent.querySelector('.GF_EXPORT_btn-export-pdf').classList.contains('GF_EXPORT_no-server'))) {
                     // If no export process is running, re-listen to the shareShortenUrl checkbox
                     if (shareShortenUrl) {
                         shareShortenUrl.addEventListener('change', function () {
                             if (shareShortenUrl.checked) {
                                 document.querySelector('.GF_EXPORT_btn-export-pdf').setAttribute('disabled', true);
-                                document.querySelector('.GF_EXPORT_btn-export-pdf').classList.add('GF_EXPORT_no-server');
+                                document.querySelector('.GF_EXPORT_btn-export-pdf').classList.add('GF_EXPORT_no-short-url');
                             } else {
-                                document.querySelector('.GF_EXPORT_btn-export-pdf').removeAttribute('disabled');
-                                document.querySelector('.GF_EXPORT_btn-export-pdf').classList.remove('GF_EXPORT_no-server');
+                                document.querySelector('.GF_EXPORT_btn-export-pdf').classList.remove('GF_EXPORT_no-short-url');
+                                if(document.querySelector('.GF_EXPORT_btn-export-pdf').classList.contains('GF_EXPORT_no-server')) {
+                                    document.querySelector('.GF_EXPORT_error').style.display = 'block';
+                                    document.querySelector('.GF_EXPORT_error').innerText = 'PDF generation server is not running.';
+                                } else {
+                                    document.querySelector('.GF_EXPORT_error').style.display = 'none';
+                                    document.querySelector('.GF_EXPORT_btn-export-pdf').removeAttribute('disabled');
+                                }
                             }
                         });
 
                         if (shareShortenUrl.checked) {
                             document.querySelector('.GF_EXPORT_btn-export-pdf').setAttribute('disabled', true);
-                            document.querySelector('.GF_EXPORT_btn-export-pdf').classList.add('GF_EXPORT_no-server');
+                            document.querySelector('.GF_EXPORT_btn-export-pdf').classList.add('GF_EXPORT_no-short-url');
                             document.querySelector('.GF_EXPORT_error').style.display = 'block';
                             document.querySelector('.GF_EXPORT_error').innerText = 'Shortened URL are not supported.';
                         } else {
-                            document.querySelector('.GF_EXPORT_btn-export-pdf').removeAttribute('disabled');
-                            document.querySelector('.GF_EXPORT_btn-export-pdf').classList.remove('GF_EXPORT_no-server');
-                            document.querySelector('.GF_EXPORT_error').style.display = 'none';
+                            document.querySelector('.GF_EXPORT_btn-export-pdf').classList.remove('GF_EXPORT_no-short-url');
+                            if(document.querySelector('.GF_EXPORT_btn-export-pdf').classList.contains('GF_EXPORT_no-server')) {
+                                document.querySelector('.GF_EXPORT_error').style.display = 'block';
+                                document.querySelector('.GF_EXPORT_error').innerText = 'PDF generation server is not running.';
+                            } else {
+                                document.querySelector('.GF_EXPORT_error').style.display = 'none';
+                                document.querySelector('.GF_EXPORT_btn-export-pdf').removeAttribute('disabled');
+                            }
                         }
                     }
                 }
@@ -215,6 +229,13 @@
         border: 1px solid transparent;
         transition: background-color 250ms cubic-bezier(0.4, 0, 0.2, 1) 0ms, box-shadow 250ms cubic-bezier(0.4, 0, 0.2, 1) 0ms, border-color 250ms cubic-bezier(0.4, 0, 0.2, 1) 0ms, color 250ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;
     }
+    .GF_EXPORT_export-pdf-container label {
+        font-size: 12px;
+        font-weight: 500;
+        line-height: 12px;
+        margin-bottom: -0.5rem;
+        color: rgb(204, 204, 220);
+    }
 
     .GF_EXPORT_export-pdf-container button:hover {
         background: rgb(90, 134, 222);
@@ -248,7 +269,7 @@
         display: inline-block;
     }
 
-    .GF_EXPORT_export-pdf-container button[disabled].GF_EXPORT_no-server .GF_EXPORT_loader {
+    .GF_EXPORT_export-pdf-container button[disabled].GF_EXPORT_no-server .GF_EXPORT_loader, .GF_EXPORT_export-pdf-container button[disabled].GF_EXPORT_no-short-url .GF_EXPORT_loader {
         display: none;
     }
 
@@ -263,7 +284,7 @@
         display: none;
     }
 
-    .GF_EXPORT_export-pdf-container button[disabled].GF_EXPORT_no-server svg {
+    .GF_EXPORT_export-pdf-container button[disabled].GF_EXPORT_no-server svg, .GF_EXPORT_export-pdf-container button[disabled].GF_EXPORT_no-short-url svg {
         display: inline-block;
     }
 

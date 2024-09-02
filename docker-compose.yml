@@ -7,4 +7,4 @@ services:
       - ./output:/usr/src/app/output
     environment:
       - PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
-      - EXPORT_SERVER_PORT=${EXPORT_SERVER_PORT:-3000}
+      - EXPORT_SERVER_PORT=${EXPORT_SERVER_PORT:-3001}
