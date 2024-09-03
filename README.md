@@ -217,6 +217,15 @@ CHECK_QUERIES_TO_COMPLETE_MAX_QUERY_COMPLETION_TIME=30000
 CHECK_QUERIES_TO_COMPLETE_QUERIES_COMPLETION_TIMEOUT=60000
 ```
 
+## Known Issues
+
+### With injected button in Grafana
+
+- The PDF generation is complete but the browser do not allow to open the popup window.
+  - You can manually allow the popup window by clicking on the popup blocked icon in the browser's address bar, and then click on "Always allow pop-ups from ...".
+
+    ![Allow pop-ups](https://github.com/arthur-mdn/grafana-export-to-pdf/blob/main/illustrations/browser-popups-blocked.png)
+
 ## Author
 
 - [Arthur Mondon](https://mondon.pro)
