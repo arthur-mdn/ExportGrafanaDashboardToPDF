@@ -196,7 +196,9 @@ DEBUG_MODE=true
 
 ### Check for all queries to be completed
 
-> Experimental feature !
+> ⚠️ Experimental feature! 
+> 
+> Intended as a future replacement for `NAVIGATION_TIMEOUT`.
 
 When activated, the server will wait for all queries to be completed before generating the PDF. This can be useful for dashboards with long queries.
 
