@@ -147,6 +147,10 @@ const auth_header = 'Basic ' + Buffer.from(auth_string).toString('base64');
             for (let el of resizeHandles) {
                 el.hidden = true;
             }
+            let alertErrors = document.querySelectorAll('div[data-testid*="Alert error"]');
+            for (let el of alertErrors) {
+                el.hidden = true;
+            }
         });
 
         let dashboardName = 'output_grafana';
