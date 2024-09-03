@@ -68,6 +68,76 @@ const auth_header = 'Basic ' + Buffer.from(auth_string).toString('base64');
         await page.goto(finalUrl, {waitUntil: 'networkidle0'});
         console.log("Page loaded...");
 
+        if (process.env.CHECK_QUERIES_TO_COMPLETE === 'true') {
+            console.log("Waiting for all queries to complete...");
+
+            await page.evaluate(async () => {
+                const scrollableSection = document.querySelector('.scrollbar-view');
+                if (scrollableSection) {
+                    console.log("Scrolling to the bottom of the page to trigger all queries...");
+                    const totalScrollHeight = scrollableSection.scrollHeight;
+                    const viewportHeight = window.innerHeight;
+                    let scrollPosition = 0;
+
+                    while (scrollPosition < totalScrollHeight) {
+                        scrollableSection.scrollBy(0, viewportHeight);
+                        scrollPosition += viewportHeight;
+                        await new Promise(resolve => setTimeout(resolve, 500));
+                    }
+                }
+            });
+
+            const panelQueryCount = await page.evaluate(async () => {
+                const url = window.performance.getEntriesByType("resource")
+                    .filter(request => (request.initiatorType === 'fetch' && request.name.includes('/dashboards/uid/')))[0].name;
+
+                const response = await fetch(url);
+                const json = await response.json();
+                const count = json.dashboard.panels.filter(panel => panel.targets).length;
+
+                console.log(`Total Panel Queries Expected: ${count}`);
+                return count;
+            });
+
+            const maxWaitTime = process.env.CHECK_QUERIES_TO_COMPLETE_QUERIES_COMPLETION_TIMEOUT || 60000;
+            const interval = 2000;
+            let elapsedTime = 0;
+            let lastCompletedCount = 0;
+            let stableCountTime = 0;
+
+            while (elapsedTime < maxWaitTime) {
+                const completedQueryCount = await page.evaluate(() => {
+                    return window.performance.getEntriesByType("resource")
+                        .filter(request => (request.initiatorType === 'fetch' && request.name.includes('query?'))).length;
+                });
+
+                console.log(`Completed Queries: ${completedQueryCount} / ${panelQueryCount}`);
+
+                if (completedQueryCount === panelQueryCount) {
+                    console.log("All queries have completed.");
+                    break;
+                }
+
+                if (completedQueryCount === lastCompletedCount) {
+                    stableCountTime += interval;
+                    if (stableCountTime >= process.env.CHECK_QUERIES_TO_COMPLETE_MAX_QUERY_COMPLETION_TIME || 30000) {
+                        throw new Error("Query completion seems to be stuck. Exiting after no progress for " + process.env.CHECK_QUERIES_TO_COMPLETE_MAX_QUERY_COMPLETION_TIME +"ms.");
+                    }
+                } else {
+                    stableCountTime = 0;
+                }
+
+                lastCompletedCount = completedQueryCount;
+                await new Promise(resolve => setTimeout(resolve, interval));
+                elapsedTime += interval;
+            }
+
+            if (elapsedTime >= maxWaitTime) {
+                throw new Error("Timeout: Not all queries completed within the allowed time.");
+            }
+        }
+
+
         await page.evaluate(() => {
             let infoCorners = document.getElementsByClassName('panel-info-corner');
             for (let el of infoCorners) {
