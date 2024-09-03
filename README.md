@@ -194,6 +194,27 @@ You can enable this behavior by setting the following variable to `true` in your
 DEBUG_MODE=true
 ```
 
+### Check for all queries to be completed
+
+> Experimental feature !
+
+When activated, the server will wait for all queries to be completed before generating the PDF. This can be useful for dashboards with long queries.
+
+#### Activation
+
+You can enable this behavior by setting the following variable to `true` in your `.env` file.
+
+```dotenv
+CHECK_QUERIES_TO_COMPLETE=true
+```
+
+You can also set the maximum time to wait for each single query to be completed, and the maximum time to wait for all the queries to be completed, before generating the PDF.
+
+```dotenv
+CHECK_QUERIES_TO_COMPLETE_MAX_QUERY_COMPLETION_TIME=30000
+CHECK_QUERIES_TO_COMPLETE_QUERIES_COMPLETION_TIMEOUT=60000
+```
+
 ## Author
 
 - [Arthur Mondon](https://mondon.pro)
