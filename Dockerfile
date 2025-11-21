@@ -1,30 +1,38 @@
-FROM node:20-slim
+FROM node:24-slim
 
-RUN apt-get update && apt-get install -y \
-    gconf-service libasound2 libatk1.0-0 libc6 libcairo2 libcups2 libdbus-1-3 libexpat1 libfontconfig1 libgcc1 libgconf-2-4 libgdk-pixbuf2.0-0 libglib2.0-0 libgtk-3-0 libnspr4 libpango-1.0-0 libpangocairo-1.0-0 libstdc++6 libx11-6 libx11-xcb1 libxcb1 libxcomposite1 libxcursor1 libxdamage1 libxext6 libxfixes3 libxi6 libxrandr2 libxrender1 libxss1 libxtst6 ca-certificates fonts-liberation libappindicator1 libnss3 lsb-release xdg-utils wget \
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    gconf-service libasound2 libatk1.0-0 \
+    libc6 libcairo2 libcups2 libdbus-1-3 \
+    libexpat1 libfontconfig1 libgcc1 \
+    libgconf-2-4 libgdk-pixbuf2.0-0 libglib2.0-0 \
+    libgtk-3-0 libnspr4 libpango-1.0-0 libpangocairo-1.0-0 \
+    libstdc++6 libx11-6 libx11-xcb1 libxcb1 \
+    libxcomposite1 libxcursor1 libxdamage1 \
+    libxext6 libxfixes3 libxi6 libxrandr2 \
+    libxrender1 libxss1 libxtst6 ca-certificates \
+    fonts-liberation libappindicator1 libnss3 \
+    lsb-release xdg-utils wget \
     chromium \
     jq \
     curl \
-    --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /usr/src/app
 
 COPY package*.json ./
 
-# RUN npm config set strict-ssl false # For those who encounter errors with certificates
-RUN npm install -g dotenv
 RUN npm install
 
-COPY grafana_pdf.js .
-COPY server.js .
-COPY .env ./
-COPY generate-pdf.sh ./
+COPY grafana_pdf.js server.js logger.js generate-pdf.sh ./
 
 ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
 
-# Default port 3001 if not found in .env
-ARG EXPORT_SERVER_PORT=3001
-EXPOSE ${EXPORT_SERVER_PORT}
+RUN groupadd -g 1000 pdfgenerator \
+    && useradd -m -u 1000 -g pdfgenerator pdfgenerator \
+    && chown -R pdfgenerator:pdfgenerator /usr/src/app
+    
+USER pdfgenerator
+
+EXPOSE 3001
 
 CMD ["node", "server.js"]
