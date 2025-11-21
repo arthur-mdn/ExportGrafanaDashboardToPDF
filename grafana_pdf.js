@@ -2,8 +2,9 @@
 
 const puppeteer = require('puppeteer');
 const fs = require('fs');
+const logger = require('./logger');
 
-console.log("Script grafana_pdf.js started...");
+logger.info("Script: grafana_pdf.js started");
 
 const args = process.argv.slice(2);
 const url = args[0];
@@ -18,16 +19,16 @@ const envHeight = process.env.PDF_HEIGHT_PX;
 const overrideHeight = heightArg
     ? parseInt(heightArg.split('=')[1], 10)
     : (envHeight && envHeight !== 'auto') ? parseInt(envHeight, 10) : null;
-console.log("PDF width set to:", width_px);
-console.log("PDF height set to:", overrideHeight !== null ? overrideHeight : "auto (auto-detected)");
+logger.info("PDF width set to:", width_px);
+logger.info("PDF height set to:", overrideHeight !== null ? overrideHeight : "auto (auto-detected)");
 
 const auth_header = useServiceAccount ? 'Bearer ' + auth_string : 'Basic ' + Buffer.from(auth_string).toString('base64');
-console.log("Using authentication:",  useServiceAccount ? "Service Account" : "Basic Auth");
+logger.info("Using authentication:",  useServiceAccount ? "Service Account" : "Basic Auth");
 
 (async () => {
     try {
-        console.log("URL provided:", url);
-        console.log("Checking URL accessibility...");
+        logger.info("Checking URL accessibility");
+        logger.debug("URL provided:", url);
         const response = await fetch(url, {
             method: 'GET',
             headers: {'Authorization': auth_header}
@@ -44,17 +45,17 @@ console.log("Using authentication:",  useServiceAccount ? "Service Account" : "B
 
         let finalUrl = url;
         if(process.env.FORCE_KIOSK_MODE === 'true') {
-            console.log("Checking if kiosk mode is enabled.");
+            logger.info("Checking if kiosk mode is enabled");
             const urlObj = new URL(finalUrl);
             if (!urlObj.searchParams.has('kiosk')) {
-                console.log("Kiosk mode not enabled. Enabling it.");
+                logger.debug("Kiosk mode not enabled. Enabling it");
                 urlObj.searchParams.set('kiosk', '1');
                 finalUrl = urlObj.toString();
             }
-            console.log("Final URL with kiosk mode:", finalUrl);
+            logger.debug("Final URL with kiosk mode:", finalUrl);
         }
 
-        console.log("Starting browser...");
+        logger.info("Starting browser...");
         const browser = await puppeteer.launch({
             executablePath: process.env.PUPPETEER_EXECUTABLE_PATH,
             headless: true,
@@ -67,7 +68,7 @@ console.log("Using authentication:",  useServiceAccount ? "Service Account" : "B
         });
 
         const page = await browser.newPage();
-        console.log("Browser started...");
+        logger.debug("Browser started...");
 
         await page.setExtraHTTPHeaders({'Authorization': auth_header});
         await page.setDefaultNavigationTimeout(process.env.PUPPETEER_NAVIGATION_TIMEOUT || 120000);
@@ -79,26 +80,24 @@ console.log("Using authentication:",  useServiceAccount ? "Service Account" : "B
             isMobile: false
         });
 
-        console.log("Navigating to URL...");
+        logger.debug("Navigating to URL");
         await page.goto(finalUrl, {
           waitUntil: ['networkidle0', 'domcontentloaded'],
           timeout: process.env.PUPPETEER_NAVIGATION_TIMEOUT || 120000
         });
-        console.log("Page loaded...");
+        logger.debug("Page loaded...");
 
-        if(process.env.DEBUG_MODE === 'true') {
-            page.on('console', msg => {
-                for (let i = 0; i < msg.args().length; ++i)
-                    msg.args()[i].jsonValue().then(val => console.log(`[Browser console] ${msg.type()}:`, val));
-            });
-        }
+        page.on('console', msg => {
+            for (let i = 0; i < msg.args().length; ++i)
+                msg.args()[i].jsonValue().then(val => logger.debug(`[Browser console] ${msg.type()}:`, val));
+        });
 
         let dashboardName = 'output_grafana';
         let date = new Date().toISOString().split('T')[0];
         const addRandomStr = process.env.ADD_RANDOM_STRING_TO_FILE_NAME === 'true';
 
         if (process.env.EXTRACT_DATE_AND_DASHBOARD_NAME_FROM_HTML_PANEL_ELEMENTS === 'true') {
-            console.log("Extracting dashboard name and date from the HTML page...");
+            logger.debug("Extracting dashboard name and date from the HTML page...");
             let scrapedDashboardName = await page.evaluate(() => {
                 const dashboardElement = document.getElementById('gfexp_display_actual_dashboard_title');
                 return dashboardElement ? dashboardElement.innerText.trim() : null;
@@ -112,23 +111,23 @@ console.log("Using authentication:",  useServiceAccount ? "Service Account" : "B
             let scrapedPanelName = await page.evaluate(() => {
                 const scrapedPanelName = document.querySelectorAll('h6');
                 if (scrapedPanelName.length > 1) { // Multiple panels detected
-                    console.log("Multiple panels detected. Unable to fetch a unique panel name. Using default value.")
+                    logger.warn("Set to extract name and date from dashboard. Multiple panels detected. Unable to fetch a unique panel name. Using default value")
                     return null;
                 }
                 if (scrapedPanelName[0] && scrapedPanelName[0].innerText.trim() === '') {
-                    console.log("Empty panel name detected. Using default value.")
+                    logger.warn("Set to extract name and date from dashboard. Empty panel name detected. Using default value")
                     return null;
                 }
                 return scrapedPanelName[0] ? scrapedPanelName[0].innerText.trim() : null;
             });
 
             if (scrapedPanelName && !scrapedDashboardName) {
-                console.log("Panel name fetched:", scrapedPanelName);
+                logger.debug("Panel name fetched:", scrapedPanelName);
                 dashboardName = scrapedPanelName;
             } else if (!scrapedDashboardName) {
-                console.log("Dashboard name not found. Using default value.");
+                logger.warn("Set to extract name and date from dashboard. Dashboard name not found. Using default value");
             } else {
-                console.log("Dashboard name fetched:", scrapedDashboardName);
+                logger.debug("Dashboard name fetched:", scrapedDashboardName);
                 dashboardName = scrapedDashboardName;
             }
 
@@ -145,13 +144,13 @@ console.log("Using authentication:",  useServiceAccount ? "Service Account" : "B
                     date = new Date().toISOString().split('T')[0];
                 }
             } else if (!scrapedDate) {
-                console.log("Date not found. Using default value.");
+                logger.warn("Set to extract name and date from dashboard. Date not found. Using default value");
             } else {
-                console.log("Date fetched:", date);
+                logger.debug("Date fetched:", date);
                 date = scrapedDate;
             }
         } else {
-            console.log("Extracting dashboard name and date from the URL...");
+            logger.debug("Extracting dashboard name and date from the URL");
             const urlParts = new URL(url);
             const pathSegments = urlParts.pathname.split('/');
             dashboardName = pathSegments[pathSegments.length - 1] || dashboardName;
@@ -164,31 +163,31 @@ console.log("Using authentication:",  useServiceAccount ? "Service Account" : "B
             } else {
                 date = new Date().toISOString().split('T')[0];
             }
-            console.log("Dashboard name fetched from URL:", dashboardName);
-            console.log("Trying to fetch the panel name from the page...")
+            logger.debug("Dashboard name fetched from URL:", dashboardName);
+            logger.debug("Trying to fetch the panel name from the page")
             let scrapedPanelName = await page.evaluate(() => {
                 const scrapedPanelName = document.querySelectorAll('h6');
-                console.log(scrapedPanelName)
+                logger.debug("Scraped panel name:", scrapedPanelName);
                 if (scrapedPanelName.length > 1) { // Multiple panels detected
-                    console.log("Multiple panels detected. Unable to fetch a unique panel name. Using default value.")
+                    logger.warn("Tried to extract panel name. Multiple panels detected. Unable to fetch a unique panel name. Using default value")
                     return null;
                 }
                 if (scrapedPanelName[0] && scrapedPanelName[0].innerText.trim() === '') {
-                    console.log("Empty panel name detected. Using default value.")
+                    logger.warn("Tried to extact panel name. Empty panel name detected. Using default value.")
                     return null;
                 }
                 return scrapedPanelName[0] ? scrapedPanelName[0].innerText.trim() : null;
             });
 
             if (scrapedPanelName) {
-                console.log("Panel name fetched:", scrapedPanelName);
+                logger.debug("Panel name fetched:", scrapedPanelName);
                 dashboardName = scrapedPanelName;
             }
 
-            console.log("Date fetched from URL:", date);
+            logger.debug("Date fetched from URL:", date);
         }
 
-        console.log("addRandomStr", addRandomStr);
+        logger.debug("Should add random string to filename:", addRandomStr);
         outfile = `./output/${dashboardName.replace(/\s+/g, '_')}_${date.replace(/\s+/g, '_')}${addRandomStr ? '_' + Math.random().toString(36).substring(7) : ''}.pdf`;
 
         const loginPageDetected = await page.evaluate(() => {
@@ -216,7 +215,7 @@ console.log("Using authentication:",  useServiceAccount ? "Service Account" : "B
             }
             return counts;
         });
-        console.log("Panel detection counts:", panelCount);
+        logger.debug("Panel detection counts:", panelCount);
 
         if(process.env.DEBUG_MODE === 'true') {
             const documentHTML = await page.evaluate(() => {
@@ -227,7 +226,7 @@ console.log("Using authentication:",  useServiceAccount ? "Service Account" : "B
             }
             const filename = `./debug/debug_${dashboardName.replace(/\s+/g, '_')}_${date.replace(/\s+/g, '_')}${'_' + Math.random().toString(36).substring(7)}.html`;
             fs.writeFileSync(filename, documentHTML);
-            console.log("Debug HTML file saved at:", filename);
+            logger.info("Debug HTML file saved at:", filename);
 
             // Enhanced debug information for panel visibility
             const panelInfo = await page.evaluate(() => {
@@ -276,11 +275,11 @@ console.log("Using authentication:",  useServiceAccount ? "Service Account" : "B
                     })
                 };
             });
-            console.log("Panel detection details:", JSON.stringify(panelInfo, null, 2));
+            logger.info("Panel detection details:", JSON.stringify(panelInfo, null, 2));
         }
 
         // IMPROVED: Enhanced panel detection and rendering for Grafana 12 compatibility
-        console.log("Ensuring panels are properly rendered...");
+        logger.info("Ensuring panels are properly rendered...");
         await page.evaluate(async () => {
             // Force all known panel types to be visible
             const panelSelectors = [
@@ -294,14 +293,14 @@ console.log("Using authentication:",  useServiceAccount ? "Service Account" : "B
             for (const selector of panelSelectors) {
                 const panels = document.querySelectorAll(selector);
                 if (panels.length > 0) {
-                    console.log(`Found ${panels.length} panels with selector ${selector}`);
+                    logger.debug(`Found ${panels.length} panels with selector ${selector}`);
 
                     // Make sure all panels are visible
                     Array.from(panels).forEach((panel, i) => {
                         panel.style.display = 'block';
                         panel.style.visibility = 'visible';
                         panel.style.opacity = '1';
-                        console.log(`Ensured visibility of panel ${i+1}`);
+                        logger.debug(`Ensured visibility of panel ${i+1}`);
                     });
                 }
             }
@@ -309,7 +308,7 @@ console.log("Using authentication:",  useServiceAccount ? "Service Account" : "B
 
         async function expandCollapsedPanels(page) {
             const debugMode = process.env.DEBUG_MODE === 'true';
-            if (debugMode) console.log('[DEBUG] Searching for collapsed panels/rows...');
+            if (debugMode) logger.debug('Searching for collapsed panels/rows...');
 
             // Panel and row selectors for different Grafana versions
             const selectors = [
@@ -336,7 +335,7 @@ console.log("Using authentication:",  useServiceAccount ? "Service Account" : "B
                 for (const selector of selectors) {
                     const elements = document.querySelectorAll(selector);
                     if (elements.length > 0 && debugMode) {
-                        console.log(`[DEBUG] Found expandable elements for ${selector}: ${elements.length}`);
+                        logger.debug(`Found expandable elements for ${selector}: ${elements.length}`);
                     }
 
                     for (const el of elements) {
@@ -345,17 +344,17 @@ console.log("Using authentication:",  useServiceAccount ? "Service Account" : "B
                             if (typeof el.click === 'function') {
                                 el.click();
                                 expandedCount++;
-                                if (debugMode) console.log(`[DEBUG] Clicked on element: ${selector}`);
+                                if (debugMode) logger.debug(`Clicked on element: ${selector}`);
                             } else {
                                 // Fallback: Try clicking on parent element
                                 if (el.parentElement && typeof el.parentElement.click === 'function') {
                                     el.parentElement.click();
                                     expandedCount++;
-                                    if (debugMode) console.log(`[DEBUG] Clicked on parent element: ${selector}`);
+                                    if (debugMode) logger.debug(`Clicked on parent element: ${selector}`);
                                 }
                             }
                         } catch (error) {
-                            if (debugMode) console.log(`[DEBUG] Error clicking on ${selector}: ${error.message}`);
+                            if (debugMode) logger.debug(`Error clicking on ${selector}: ${error.message}`);
                         }
                     }
                 }
@@ -368,27 +367,27 @@ console.log("Using authentication:",  useServiceAccount ? "Service Account" : "B
                 return expandedCount;
             }, selectors, debugMode);
 
-            if (debugMode) console.log(`[DEBUG] Number of expanded panels/rows: ${expanded}`);
+            if (debugMode) logger.debug(`Number of expanded panels/rows: ${expanded}`);
             return expanded;
         }
 
         const expandPanels = process.env.EXPAND_COLLAPSED_PANELS !== 'false';
         if (expandPanels) {
-            console.log("Searching and expanding collapsed panels/rows...");
+            logger.info("Searching and expanding collapsed panels/rows...");
             const expanded = await expandCollapsedPanels(page);
             if (expanded > 0) {
-                console.log(`Expanded ${expanded} panels/rows. Waiting for content to load...`);
+                logger.info(`Expanded ${expanded} panels/rows. Waiting for content to load...`);
                 await page.evaluate(timeout => new Promise(resolve => setTimeout(resolve, timeout)), 2000 + expanded * 500);
             } else {
-                console.log("No collapsed panels/rows found.");
+                logger.warn("No collapsed panels/rows found.");
             }
         } else {
-            console.log("Automatic expansion of collapsed panels is disabled.");
+            logger.debug("Automatic expansion of collapsed panels is disabled.");
         }
 
         const expandTables = process.env.EXPAND_TABLES !== 'false';
         if (expandTables) {
-            console.log("Looking for tables to expand...");
+            logger.info("Looking for tables to expand...");
 
             const expandedTables = await page.evaluate(async () => {
                 const panelSelectors = [
@@ -447,16 +446,16 @@ console.log("Using authentication:",  useServiceAccount ? "Service Account" : "B
                                 await new Promise(resolve => setTimeout(resolve, 100));
 
                                 const updatedHeight = target.offsetHeight;
-                                console.log(`Height after layout update: ${updatedHeight}px (was: ${originalHeight})`);
+                                logger.debug(`Height after layout update: ${updatedHeight}px (was: ${originalHeight})`);
 
                                 if (updatedHeight !== newHeight) {
                                     const finalHeight = updatedHeight + 100;
                                     panel.style.height = `${finalHeight}px`;
                                     panel.style.minHeight = `${finalHeight}px`;
-                                    console.log(`Re-adjusted panel to match updated child height: ${finalHeight}px`);
+                                    logger.debug(`Re-adjusted panel to match updated child height: ${finalHeight}px`);
                                 }
 
-                                console.log(`Table panel expanded using strategy: ${strat.name}`);
+                                logger.debug(`Table panel expanded using strategy: ${strat.name}`);
                                 expandedPanels.add(panel);
                                 break;
                             }
@@ -467,7 +466,7 @@ console.log("Using authentication:",  useServiceAccount ? "Service Account" : "B
                 return expandedPanels.size;
             });
 
-            console.log(`Expanded ${expandedTables} scrollable table(s).`);
+            logger.info(`Expanded ${expandedTables} scrollable table(s).`);
         }
 
         await page.evaluate((hideDashboardControls) => {
@@ -497,7 +496,7 @@ console.log("Using authentication:",  useServiceAccount ? "Service Account" : "B
         // IMPROVED: Enhanced height detection with Grafana 12 specific selectors
         let scrollableSection = null;
 
-        console.log("Forcing DOM reflow and layout recalculation...");
+        logger.debug("Forcing DOM reflow and layout recalculation...");
         await page.evaluate(() => {
             // try to resize the window to force layout recalculation
             window.dispatchEvent(new Event('resize'));
@@ -509,10 +508,10 @@ console.log("Using authentication:",  useServiceAccount ? "Service Account" : "B
 
             return new Promise(resolve => setTimeout(resolve, 500));
         });
-        console.log("Layout reflow completed. Re-calculating content height.");
+        logger.debug("Layout reflow completed. Re-calculating content height.");
 
         const totalHeight = await page.evaluate(() => {
-            console.log("Attempting to detect page height with multiple selectors...");
+            logger.debug("Attempting to detect page height with multiple selectors...");
 
             // Priority list of selectors for different Grafana versions
             const selectors = [
@@ -533,17 +532,17 @@ console.log("Using authentication:",  useServiceAccount ? "Service Account" : "B
 
             // Try each selector until we find one
             for (const selector of selectors) {
-                console.log(`Trying selector: ${selector}`);
+                logger.debug(`Trying selector: ${selector}`);
                 scrollableSection = document.querySelector(selector);
                 if (scrollableSection) {
                     selectorUsed = selector;
-                    console.log(`Successfully found element with selector: ${selector}`);
+                    logger.debug(`Successfully found element with selector: ${selector}`);
                     break;
                 }
             }
 
             if (!scrollableSection) {
-                console.log("No suitable element found, using document.body as fallback");
+                logger.debug("No suitable element found, using document.body as fallback");
                 scrollableSection = document.body;
                 selectorUsed = 'body (fallback)';
             }
@@ -565,7 +564,7 @@ console.log("Using authentication:",  useServiceAccount ? "Service Account" : "B
                 const elements = document.querySelectorAll(selector);
                 if (elements && elements.length > 0) {
                     panels = Array.from(elements);
-                    console.log(`Using ${selector} for panel height calculation, found ${panels.length} panels`);
+                    logger.debug(`Using ${selector} for panel height calculation, found ${panels.length} panels`);
                     break;
                 }
             }
@@ -574,13 +573,13 @@ console.log("Using authentication:",  useServiceAccount ? "Service Account" : "B
                 let maxBottom = 0;
                 panels.forEach((panel, idx) => {
                     const rect = panel.getBoundingClientRect();
-                    console.log(`Panel ${idx+1} position: top=${rect.top}, bottom=${rect.bottom}`);
+                    logger.debug(`Panel ${idx+1} position: top=${rect.top}, bottom=${rect.bottom}`);
                     maxBottom = Math.max(maxBottom, rect.bottom);
                 });
 
                 if (maxBottom > 100) {
                     height = Math.ceil(maxBottom + 100); // Add padding
-                    console.log(`Height calculated from ${panels.length} panels: ${height}`);
+                    logger.debug(`Height calculated from ${panels.length} panels: ${height}`);
                     return height;
                 }
             }
@@ -588,39 +587,39 @@ console.log("Using authentication:",  useServiceAccount ? "Service Account" : "B
             // Original height calculation strategies as fallback
             if (!height && scrollableSection.firstElementChild && scrollableSection.firstElementChild.scrollHeight > 100) {
                 height = scrollableSection.firstElementChild.scrollHeight;
-                console.log(`Height from firstElementChild.scrollHeight: ${height} (selector: ${selectorUsed})`);
+                logger.debug(`Height from firstElementChild.scrollHeight: ${height} (selector: ${selectorUsed})`);
             }
 
             if (!height && scrollableSection.scrollHeight > 100) {
                 height = scrollableSection.scrollHeight;
-                console.log(`Height from element.scrollHeight: ${height} (selector: ${selectorUsed})`);
+                logger.debug(`Height from element.scrollHeight: ${height} (selector: ${selectorUsed})`);
             }
 
             if (!height) {
                 const rect = scrollableSection.getBoundingClientRect();
                 if (rect.height > 100) {
                     height = Math.ceil(rect.height);
-                    console.log(`Height from getBoundingClientRect: ${height} (selector: ${selectorUsed})`);
+                    logger.debug(`Height from getBoundingClientRect: ${height} (selector: ${selectorUsed})`);
                 }
             }
 
             // Fallback height
             if (!height) {
                 height = Math.max(window.innerHeight * 2, 1600);
-                console.log(`Using fallback height: ${height}`);
+                logger.debug(`Using fallback height: ${height}`);
             }
 
-            console.log(`Final height determined: ${height} using selector: ${selectorUsed}`);
+            logger.debug(`Final height determined: ${height} using selector: ${selectorUsed}`);
             return height;
         });
 
         if (!totalHeight || totalHeight < 100) {
-            console.log("Warning: Could not determine reliable page height, using fallback of 1600px");
+            logger.warn("Could not determine reliable page height, using fallback of 1600px");
             const fallbackHeight = 1600;
 
             // Advanced scrolling technique for Grafana 12
             await page.evaluate(async () => {
-                console.log("Performing comprehensive scrolling to ensure all content is loaded...");
+                logger.debug("Performing comprehensive scrolling to ensure all content is loaded...");
 
                 // Progressive scrolling with pauses
                 const viewportHeight = window.innerHeight;
@@ -637,20 +636,20 @@ console.log("Using authentication:",  useServiceAccount ? "Service Account" : "B
                 await new Promise(resolve => setTimeout(resolve, scrollDelay));
             });
 
-            console.log("Page height set to fallback:", fallbackHeight);
+            logger.info("Page height set to fallback:", fallbackHeight);
         } else {
-            console.log("Page height successfully determined:", totalHeight);
+            logger.info("Page height successfully determined:", totalHeight);
 
             // Enhanced scrolling for Grafana 12
             await page.evaluate(async () => {
-                console.log("Performing enhanced scrolling to load all content...");
+                logger.debug("Performing enhanced scrolling to load all content...");
 
                 // Progressive scroll approach
                 const viewportHeight = window.innerHeight;
                 const totalScrolls = Math.ceil(document.body.scrollHeight / (viewportHeight / 3));
                 const scrollDelay = 750;
 
-                console.log(`Planning ${totalScrolls} scroll steps`);
+                logger.debug(`Planning ${totalScrolls} scroll steps`);
 
                 // First scroll down gradually
                 for (let i = 0; i < totalScrolls; i++) {
@@ -664,16 +663,16 @@ console.log("Using authentication:",  useServiceAccount ? "Service Account" : "B
                     await new Promise(resolve => setTimeout(resolve, scrollDelay));
                 }
 
-                console.log("Progressive scrolling completed");
+                logger.debug("Progressive scrolling completed");
             });
         }
 
         if (process.env.CHECK_QUERIES_TO_COMPLETE === 'true' && !finalUrl.includes('viewPanel=')) {
-            console.log("Waiting for all queries to complete...");
+            logger.info("Waiting for all queries to complete...");
 
             await page.evaluate(async () => {
                 if (scrollableSection) {
-                    console.log("Scrolling to the bottom of the page to trigger all queries...");
+                    logger.info("Scrolling to the bottom of the page to trigger all queries...");
                     const totalHeight = scrollableSection.scrollHeight;
                     const viewportHeight = window.innerHeight;
                     let scrolled = 0;
@@ -721,7 +720,7 @@ console.log("Using authentication:",  useServiceAccount ? "Service Account" : "B
                 const valid = countPanels(panels);
                 const templatingQueries = templating.filter(v => v?.type === 'query').length;
 
-                console.log(`✔ Expected queries: ${valid + templatingQueries}`);
+                logger.info(`✔ Expected queries: ${valid + templatingQueries}`);
                 return { valid, templating: templatingQueries };
             }, ['text']);
 
@@ -768,11 +767,11 @@ console.log("Using authentication:",  useServiceAccount ? "Service Account" : "B
                             }
                         }
 
-                        console.log(`🛑 Panel with error detected: "${title}"`);
+                        logger.warn(`🛑 Panel with error detected: "${title}"`);
                     }
                 });
 
-                console.log(`🛑 Total panels with errors: ${uniquePanels.size}`);
+                logger.info(`🛑 Total panels with errors: ${uniquePanels.size}`);
                 return uniquePanels.size;
             }, panelErrorSelectors);
 
@@ -806,11 +805,11 @@ console.log("Using authentication:",  useServiceAccount ? "Service Account" : "B
                                 break;
                             }
                         }
-                        console.log(`🛑 Variable with query error detected: "${title}"`);
+                        logger.warn(`🛑 Variable with query error detected: "${title}"`);
                     }
                 });
 
-                console.log(`🛑 Variables with query errors detected: ${variableWrappers.size}`);
+                logger.info(`🛑 Variables with query errors detected: ${variableWrappers.size}`);
                 return variableWrappers.size;
             }, variableErrorSelectors);
 
@@ -829,7 +828,7 @@ console.log("Using authentication:",  useServiceAccount ? "Service Account" : "B
             let lastCompletedCount = 0;
             let stableCountTime = 0;
 
-            console.log(`Waiting for queries to complete... Expected: ${effectivePanelQueryCount}, Timeout: ${maxWaitTime}ms, Interval: ${interval}ms`);
+            logger.info(`Waiting for queries to complete... Expected: ${effectivePanelQueryCount}, Timeout: ${maxWaitTime}ms, Interval: ${interval}ms`);
 
             while (elapsedTime < maxWaitTime) {
                 const completedQueryCount = await page.evaluate(() =>
@@ -837,10 +836,10 @@ console.log("Using authentication:",  useServiceAccount ? "Service Account" : "B
                         .filter(r => r.initiatorType === 'fetch' && r.name.includes('query')).length
                 );
 
-                console.log(`Completed Queries: ${completedQueryCount} / ${effectivePanelQueryCount}`);
+                logger.debug(`Completed Queries: ${completedQueryCount} / ${effectivePanelQueryCount}`);
 
                 if (completedQueryCount >= effectivePanelQueryCount) {
-                    console.log("All expected queries have completed.");
+                    logger.info("All expected queries have completed.");
                     break;
                 }
 
@@ -856,7 +855,7 @@ console.log("Using authentication:",  useServiceAccount ? "Service Account" : "B
                 lastCompletedCount = completedQueryCount;
                 await new Promise(res => setTimeout(res, interval));
                 elapsedTime += interval;
-                console.log(`Waiting... Elapsed: ${elapsedTime}ms`);
+                logger.debug(`Waiting... Elapsed: ${elapsedTime}ms`);
             }
 
             if (elapsedTime >= maxWaitTime) {
@@ -867,7 +866,7 @@ console.log("Using authentication:",  useServiceAccount ? "Service Account" : "B
 
         // Add a final check for all panels and ensure they're visible
         await page.evaluate(async () => {
-            console.log("Final check for panel visibility...");
+            logger.debug("Final check for panel visibility...");
 
             // Find all panels with any known selector
             const panelSelectors = [
@@ -884,7 +883,7 @@ console.log("Using authentication:",  useServiceAccount ? "Service Account" : "B
                 const panels = document.querySelectorAll(selector);
                 if (panels && panels.length > 0) {
                     allPanels = Array.from(panels);
-                    console.log(`Found ${panels.length} panels with selector ${selector}`);
+                    logger.debug(`Found ${panels.length} panels with selector ${selector}`);
                     break;
                 }
             }
@@ -904,7 +903,7 @@ console.log("Using authentication:",  useServiceAccount ? "Service Account" : "B
                     });
                 });
 
-                console.log(`Ensured visibility of ${allPanels.length} panels`);
+                logger.debug(`Ensured visibility of ${allPanels.length} panels`);
             }
 
             // Extra wait to ensure charts render
@@ -912,7 +911,7 @@ console.log("Using authentication:",  useServiceAccount ? "Service Account" : "B
         });
 
         // Final wait for all panels to be fully rendered
-        console.log("Final wait for all panels to render completely...");
+        logger.debug("Final wait for all panels to render completely...");
         await page.evaluate(timeout => {
             return new Promise(resolve => setTimeout(resolve, timeout));
         }, 5000);
@@ -926,13 +925,13 @@ console.log("Using authentication:",  useServiceAccount ? "Service Account" : "B
             isMobile: false
         });
 
-        console.log("Generating PDF...");
+        logger.info("Generating PDF");
         let pdfHeight = finalHeight;
         if (overrideHeight && !isNaN(overrideHeight)) {
             pdfHeight = overrideHeight;
-            console.log(`Forcing PDF page height to override: ${pdfHeight}px`);
+            logger.info(`Forcing PDF page height to override: ${pdfHeight}px`);
         } else {
-            console.log(`PDF page height will follow auto-detected content height: ${pdfHeight}px`);
+            logger.info(`PDF page height will follow auto-detected content height: ${pdfHeight}px`);
         }
 
         await page.emulateMediaType('screen');
@@ -949,7 +948,6 @@ console.log("Using authentication:",  useServiceAccount ? "Service Account" : "B
             `
         });
 
-
         await page.pdf({
             path: outfile,
             width: width_px + 'px',
@@ -959,14 +957,14 @@ console.log("Using authentication:",  useServiceAccount ? "Service Account" : "B
             displayHeaderFooter: false,
             margin: {top: 0, right: 0, bottom: 0, left: 0}
         });
-        console.log(`PDF generated: ${outfile}`);
+        logger.debug(`PDF generated: ${outfile}`);
 
         await browser.close();
-        console.log("Browser closed.");
+        logger.debug("Browser closed.");
 
         process.send({ success: true, path: outfile });
     } catch (error) {
-        console.error("Error during PDF generation:", error.message);
+        logger.error("Error during PDF generation:", error.message);
         process.send({ success: false, error: error.message });
         process.exit(1);
     }
