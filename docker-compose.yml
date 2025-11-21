@@ -1,13 +1,11 @@
 services:
   grafana-export-to-pdf:
-    build: .
+    image: registry-user-name/image-name:latest
     container_name: grafana-export-to-pdf
     ports:
-      - "${EXPORT_SERVER_PORT:-3001}:${EXPORT_SERVER_PORT:-3001}"
-    network_mode: "host"
+      - "${EXPORT_SERVER_PORT:-3001}:3001"
     volumes:
       - ./output:/usr/src/app/output
       - ./debug:/usr/src/app/debug
     environment:
       - PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
-      - EXPORT_SERVER_PORT=${EXPORT_SERVER_PORT:-3001}
