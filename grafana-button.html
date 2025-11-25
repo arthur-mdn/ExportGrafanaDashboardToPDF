@@ -32,6 +32,8 @@
                 "generatePdf": "Générer le PDF",
                 "retry": "Réessayer",
                 "tryingToConnect": "Tentative de connexion au serveur PDF...",
+                "pdfWidth": "Largeur du PDF (px)",
+                "pdfWidthDescription": "Laissez vide pour utiliser la valeur par défaut du serveur.",
             },
             en: {
                 "exportAsPdf": "Export as PDF",
@@ -57,6 +59,8 @@
                 "generatePdf": "Generate PDF",
                 "retry": "Retry",
                 "tryingToConnect": "Trying to connect to the PDF server...",
+                "pdfWidth": "PDF width (px)",
+                "pdfWidthDescription": "Leave empty to use server default.",
             }
         };
 
@@ -607,6 +611,28 @@
         display: block;
     }
 
+    .GFEXP_text_input {
+        background-color: rgba(204, 204, 220, 0.07);
+        border: 1px solid rgba(204, 204, 220, 0.2);
+        border-radius: 2px;
+        color: rgb(204, 204, 220);
+        font-size: 14px;
+        height: 32px;
+        padding: 0px 8px;
+        width: 100%;
+        max-width: 200px;
+        box-sizing: border-box;
+    }
+
+    .GFEXP_text_input:focus {
+        outline: none;
+        border-color: rgb(61, 113, 217);
+    }
+
+    .GFEXP_text_input::placeholder {
+        color: rgba(204, 204, 220, 0.4);
+    }
+
     .GFEXP_error_content{
         background-color: rgba(209, 14, 92, 0.15);
         border: 1px solid rgba(255, 82, 134, 0.25);
@@ -785,6 +811,15 @@
                     </div>
                 </div>
             </div>
+            <div class="css-1rplq84">
+                <div class="css-l4ykjo-Label"><label for="gfexpPdfWidth">
+                    <div class="css-70qvj9">${window.gfexpLangs[window.gfexpLang].pdfWidth}</div>
+                    <span class="css-1qya104-Label-description">${window.gfexpLangs[window.gfexpLang].pdfWidthDescription}</span>
+                </label></div>
+                <div>
+                    <input type="number" class="GFEXP_text_input" id="gfexpPdfWidth" placeholder="1920" min="100" max="10000">
+                </div>
+            </div>
         </div>
 
         <div id="GFEXP_error" class="GFEXP_error"></div>
@@ -896,8 +931,11 @@
 
                         let theme = drawer.querySelector('input[name="gfexpDownloadPdfTheme"]:checked').id;
                         let lockTimeRange = drawer.querySelector('#gfexpDownloadPdfThemeCurrentTimeRange').checked;
+                        let pdfWidthInput = drawer.querySelector('#gfexpPdfWidth').value;
+                        let pdfWidthPx = pdfWidthInput ? parseInt(pdfWidthInput, 10) : null;
                         console.log("[GFEXP] Theme:", theme);
                         console.log("[GFEXP] Lock time range:", lockTimeRange);
+                        console.log("[GFEXP] PDF width:", pdfWidthPx);
 
                         function filterURL(lockTimeRange, theme) {
                             let url = new URL(window.location.href);
@@ -965,12 +1003,17 @@
                             console.log('[GFEXP] PDF generation URL:', generateUrl);
                             gfexpDownloadPdfButton.setAttribute('disabled', 'true');
 
+                            const requestBody = { url };
+                            if (pdfWidthPx && !isNaN(pdfWidthPx) && pdfWidthPx > 0) {
+                                requestBody.pdfWidthPx = pdfWidthPx;
+                            }
+
                             const response = await fetch(generateUrl, {
                                 method: 'POST',
                                 headers: {
                                     'Content-Type': 'application/json'
                                 },
-                                body: JSON.stringify({ url })
+                                body: JSON.stringify(requestBody)
                             });
 
                             if (response.ok) {
