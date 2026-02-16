@@ -11,7 +11,7 @@
     "dotenv": "^17.2.3",
     "express": "^5.1.0",
     "node-fetch": "^3.3.2",
-    "puppeteer": "^24.24.1"
+    "puppeteer": "^24.36.1"
   },
   "author": "",
   "license": "ISC"
