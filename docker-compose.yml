@@ -11,3 +11,5 @@ services:
     environment:
       - PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
       - EXPORT_SERVER_PORT=${EXPORT_SERVER_PORT:-3001}
+      - XDG_CONFIG_HOME=/tmp/.chromium
+      - XDG_CACHE_HOME=/tmp/.chromium
